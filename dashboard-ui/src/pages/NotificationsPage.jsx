@@ -5,10 +5,10 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 
 const typeConfig = {
-  alert: { icon: AlertTriangle, color: '#e5484d', bg: 'rgba(229,72,77,0.15)' },
-  success: { icon: CheckCircle, color: '#27a644', bg: 'rgba(39,166,68,0.15)' },
-  warning: { icon: AlertTriangle, color: '#e8a735', bg: 'rgba(232,167,53,0.15)' },
-  info: { icon: Info, color: '#3e8ef7', bg: 'rgba(62,142,247,0.15)' },
+  alert: { icon: AlertTriangle, color: '#ef4444', bg: 'rgba(239,68,68,0.15)' },
+  success: { icon: CheckCircle, color: '#10b981', bg: 'rgba(16,185,129,0.15)' },
+  warning: { icon: AlertTriangle, color: '#f59e0b', bg: 'rgba(245,158,11,0.15)' },
+  info: { icon: Info, color: '#38bdf8', bg: 'rgba(56,189,248,0.15)' },
 }
 
 export function NotificationsPage() {
@@ -43,15 +43,15 @@ export function NotificationsPage() {
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.4 }}
           >
-            <Card className="glass-card">
+            <Card>
               <CardContent className="flex flex-col items-center py-14">
                 <motion.div
                   animate={{ y: [0, -4, 0] }}
                   transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
                   className="mb-4 flex h-16 w-16 items-center justify-center rounded-full"
-                  style={{ background: 'rgba(94, 106, 210, 0.1)', border: '1px solid rgba(94, 106, 210, 0.2)' }}
+                  style={{ background: 'rgba(0, 184, 169, 0.1)', border: '1px solid rgba(0, 184, 169, 0.2)' }}
                 >
-                  <BellOff className="h-7 w-7" style={{ color: '#5e6ad2' }} />
+                  <BellOff className="h-7 w-7" style={{ color: '#00b8a9' }} />
                 </motion.div>
                 <h3 className="mb-1 text-[16px] font-semibold text-text-primary">暂无系统通知</h3>
                 <p className="max-w-sm text-center text-[13px] leading-relaxed text-text-muted">
@@ -95,7 +95,7 @@ export function NotificationsPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
           >
-            <Card className="glass-card">
+            <Card>
               <CardHeader className="flex-row items-center justify-between">
                 <div className="flex items-center gap-3">
                   <CardTitle>消息通知</CardTitle>

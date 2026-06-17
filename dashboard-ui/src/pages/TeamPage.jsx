@@ -4,7 +4,7 @@ import { UserPlus, Users, Upload, X, Trash2 } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 
-const statusColors = { online: '#27a644', busy: '#e8a735', offline: '#52525b' }
+const statusColors = { online: '#10b981', busy: '#f59e0b', offline: '#6b7280' }
 const statusLabels = { online: '在线', busy: '忙碌', offline: '离线' }
 
 const roleOptions = ['定价策略经理', '数据工程师', '数据分析师', '运营主管', '区域经理', '客服人员', '财务人员']
@@ -51,15 +51,15 @@ export function TeamPage() {
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.4 }}
           >
-            <Card className="glass-card">
+            <Card>
               <CardContent className="flex flex-col items-center py-14">
                 <motion.div
                   animate={{ y: [0, -4, 0] }}
                   transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
                   className="mb-4 flex h-16 w-16 items-center justify-center rounded-full"
-                  style={{ background: 'rgba(94, 106, 210, 0.1)', border: '1px solid rgba(94, 106, 210, 0.2)' }}
+                  style={{ background: 'rgba(0, 184, 169, 0.1)', border: '1px solid rgba(0, 184, 169, 0.2)' }}
                 >
-                  <Users className="h-7 w-7" style={{ color: '#5e6ad2' }} />
+                  <Users className="h-7 w-7" style={{ color: '#00b8a9' }} />
                 </motion.div>
                 <h3 className="mb-1 text-[16px] font-semibold text-text-primary">暂无团队成员</h3>
                 <p className="mb-6 max-w-sm text-center text-[13px] leading-relaxed text-text-muted">
@@ -149,19 +149,19 @@ export function TeamPage() {
           >
             {/* Stats Row */}
             <div className="grid grid-cols-3 gap-3">
-              <Card className="glass-card">
+              <Card>
                 <CardContent className="py-4">
                   <div className="text-[11px] text-text-muted">团队人数</div>
                   <div className="mt-1 text-[22px] font-semibold text-text-primary">{members.length}</div>
                 </CardContent>
               </Card>
-              <Card className="glass-card">
+              <Card>
                 <CardContent className="py-4">
                   <div className="text-[11px] text-text-muted">当前在线</div>
                   <div className="mt-1 text-[22px] font-semibold text-success">{onlineCount}</div>
                 </CardContent>
               </Card>
-              <Card className="glass-card">
+              <Card>
                 <CardContent className="py-4">
                   <div className="text-[11px] text-text-muted">本月完成任务</div>
                   <div className="mt-1 text-[22px] font-semibold text-text-primary">
@@ -172,7 +172,7 @@ export function TeamPage() {
             </div>
 
             {/* Member List */}
-            <Card className="glass-card">
+            <Card>
               <CardHeader className="flex-row items-center justify-between">
                 <CardTitle>团队成员</CardTitle>
                 <button
@@ -243,7 +243,7 @@ export function TeamPage() {
                       <div className="relative flex-shrink-0">
                         <div
                           className="flex h-10 w-10 items-center justify-center rounded-full text-[14px] font-semibold text-white"
-                          style={{ background: 'linear-gradient(135deg, #5e6ad2, #7a7fad)' }}
+                          style={{ background: 'linear-gradient(135deg, #00b8a9, #8b7cf6)' }}
                         >
                           {member.name[0]}
                         </div>

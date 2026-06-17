@@ -53,7 +53,7 @@ export function CostQueryPage() {
             { label: '风险缓冲', value: totalRisk, color: 'danger', unit: '元/时' },
             { label: '目标利润', value: totalProfit, color: 'success', unit: '元/时' },
           ].map((item, i) => (
-            <Card key={i} className="glass-card">
+            <Card key={i}>
               <CardContent className="py-4">
                 <div className="flex items-center justify-between">
                   <span className="text-[11px] text-text-muted">{item.label}</span>
@@ -68,7 +68,7 @@ export function CostQueryPage() {
 
       {/* Cost Table */}
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1, duration: 0.4 }}>
-        <Card className="glass-card">
+        <Card>
           <CardHeader className="flex-row items-center justify-between">
             <CardTitle>成本参数明细</CardTitle>
             <div className="flex items-center gap-2">

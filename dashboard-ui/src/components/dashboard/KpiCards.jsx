@@ -5,12 +5,12 @@ import { AnimatedNumber } from '@/components/ui/animated-number'
 import { cn } from '@/lib/utils'
 
 const kpiConfig = [
-  { key: 'totalOrders', label: '累计订单', prefix: '', suffix: '', decimals: 0, growthKey: 'orderGrowth', color: 'accent', icon: '📦' },
-  { key: 'avgPrice', label: '平均客单价', prefix: '¥', suffix: '', decimals: 1, growthKey: 'priceGrowth', color: 'info', icon: '💰' },
-  { key: 'avgMargin', label: '平均利润率', prefix: '', suffix: '%', decimals: 1, growthKey: 'marginGrowth', color: 'success', icon: '📈' },
-  { key: 'lossRate', label: 'AI亏损率', prefix: '', suffix: '%', decimals: 1, growthKey: null, color: 'danger', icon: '🛡️', inverse: true },
-  { key: 'totalRevenue', label: '总营收', prefix: '¥', suffix: '万', decimals: 1, growthKey: 'revenueGrowth', color: 'accent', icon: '🏦' },
-  { key: 'totalProfit', label: '总利润', prefix: '¥', suffix: '万', decimals: 1, growthKey: null, color: 'success', icon: '✨' },
+  { key: 'totalOrders', label: '累计订单', prefix: '', suffix: '', decimals: 0, growthKey: 'orderGrowth', color: '#00b8a9', inverse: false },
+  { key: 'avgPrice', label: '平均客单价', prefix: '¥', suffix: '', decimals: 1, growthKey: 'priceGrowth', color: '#38bdf8', inverse: false },
+  { key: 'avgMargin', label: '平均利润率', prefix: '', suffix: '%', decimals: 1, growthKey: 'marginGrowth', color: '#10b981', inverse: false },
+  { key: 'lossRate', label: 'AI亏损率', prefix: '', suffix: '%', decimals: 1, growthKey: null, color: '#ef4444', inverse: true },
+  { key: 'totalRevenue', label: '总营收', prefix: '¥', suffix: '万', decimals: 1, growthKey: 'revenueGrowth', color: '#8b7cf6', inverse: false },
+  { key: 'totalProfit', label: '总利润', prefix: '¥', suffix: '万', decimals: 1, growthKey: null, color: '#f59e0b', inverse: false },
 ]
 
 export function KpiCards({ data }) {
@@ -19,9 +19,9 @@ export function KpiCards({ data }) {
       {kpiConfig.map((config, index) => (
         <motion.div
           key={config.key}
-          initial={{ opacity: 0, y: 16 }}
+          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: index * 0.08, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ delay: index * 0.06, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
         >
           <KpiCard config={config} data={data} />
         </motion.div>
@@ -41,15 +41,16 @@ function KpiCard({ config, data }) {
       : 'text-danger'
 
   return (
-    <Card className="glass-card group cursor-default overflow-hidden">
+    <Card className="group cursor-default">
       <div className="p-4">
-        <div className="mb-2 flex items-center justify-between">
-          <span className="text-[11px] font-medium text-text-muted">{config.label}</span>
-          <span className="text-[14px] opacity-60 transition-opacity group-hover:opacity-100">
-            {config.icon}
-          </span>
+        <div className="mb-3 flex items-center justify-between">
+          <span className="text-[11px] font-medium uppercase tracking-wider text-text-muted">{config.label}</span>
+          <span
+            className="h-2 w-2 rounded-full"
+            style={{ background: config.color, opacity: 0.6 }}
+          />
         </div>
-        <div className="mb-1 text-[22px] font-semibold tracking-tight text-text-primary">
+        <div className="mb-1.5 text-[24px] font-bold tracking-tight text-text-primary">
           <AnimatedNumber
             value={value}
             prefix={config.prefix}
@@ -71,7 +72,7 @@ function KpiCard({ config, data }) {
           </div>
         )}
         {growth == null && config.key === 'lossRate' && (
-          <div className="flex items-center gap-1 text-[11px] font-medium text-success">
+          <div className="flex items-center gap-1.5 text-[11px] font-medium text-success">
             <span className="status-dot online inline-block h-1.5 w-1.5 rounded-full bg-success" />
             <span>AI模型运行正常</span>
           </div>
@@ -82,18 +83,9 @@ function KpiCard({ config, data }) {
           </div>
         )}
       </div>
-      {/* Hover gradient bottom line */}
       <div
-        className="h-[2px] w-full opacity-0 transition-opacity group-hover:opacity-100"
-        style={{
-          background: config.color === 'accent'
-            ? 'linear-gradient(90deg, #5e6ad2, #7a7fad)'
-            : config.color === 'info'
-              ? 'linear-gradient(90deg, #3e8ef7, #0ea5b7)'
-              : config.color === 'success'
-                ? 'linear-gradient(90deg, #27a644, #10b981)'
-                : 'linear-gradient(90deg, #e5484d, #f97583)',
-        }}
+        className="h-[2px] w-full opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+        style={{ background: `linear-gradient(90deg, ${config.color}, transparent)` }}
       />
     </Card>
   )

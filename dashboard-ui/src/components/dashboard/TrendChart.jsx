@@ -1,19 +1,19 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell, Legend,
+  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
 } from 'recharts'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 
-const CHART_COLORS = ['#5e6ad2', '#27a644', '#e8a735', '#e5484d', '#7a7fad', '#0ea5b7']
+const CHART_COLORS = ['#00b8a9', '#10b981', '#f59e0b', '#ef4444', '#8b7cf6', '#f472b6']
 
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null
   return (
-    <div className="rounded-[var(--radius-md)] border border-border-default bg-bg-elevated p-3 shadow-xl">
-      <p className="mb-1.5 text-[11px] font-medium text-text-muted">{label}</p>
+    <div className="card-elevated p-3 shadow-xl">
+      <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-text-muted">{label}</p>
       {payload.map((entry, i) => (
         <div key={i} className="flex items-center gap-2 text-[12px]">
           <span className="h-2 w-2 rounded-full" style={{ background: entry.color }} />
@@ -41,22 +41,22 @@ export function TrendChart({ data }) {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 16 }}
+      initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.4, duration: 0.5 }}
+      transition={{ delay: 0.3, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
     >
-      <Card className="glass-card">
+      <Card>
         <CardHeader className="flex-row items-center justify-between">
           <CardTitle>月度趋势</CardTitle>
-          <div className="flex gap-1">
+          <div className="flex gap-0.5">
             {tabOptions.map((tab) => (
               <button
                 key={tab.key}
                 onClick={() => setRange(tab.key)}
                 className={cn(
-                  'rounded-[var(--radius-sm)] px-2.5 py-1 text-[11px] font-medium transition-colors',
+                  'rounded-md px-2.5 py-1 text-[11px] font-medium transition-colors',
                   range === tab.key
-                    ? 'bg-accent-muted text-accent-hover'
+                    ? 'bg-accent-muted text-accent'
                     : 'text-text-muted hover:bg-bg-hover hover:text-text-secondary'
                 )}
               >
@@ -71,25 +71,25 @@ export function TrendChart({ data }) {
               <AreaChart data={sliced} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
                 <defs>
                   <linearGradient id="priceGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#5e6ad2" stopOpacity={0.3} />
-                    <stop offset="100%" stopColor="#5e6ad2" stopOpacity={0} />
+                    <stop offset="0%" stopColor="#00b8a9" stopOpacity={0.25} />
+                    <stop offset="100%" stopColor="#00b8a9" stopOpacity={0} />
                   </linearGradient>
                   <linearGradient id="orderGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#27a644" stopOpacity={0.2} />
-                    <stop offset="100%" stopColor="#27a644" stopOpacity={0} />
+                    <stop offset="0%" stopColor="#10b981" stopOpacity={0.15} />
+                    <stop offset="100%" stopColor="#10b981" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" />
                 <XAxis
                   dataKey="month"
-                  tick={{ fill: '#71717a', fontSize: 11 }}
-                  axisLine={{ stroke: 'rgba(255,255,255,0.06)' }}
+                  tick={{ fill: '#6b7280', fontSize: 11 }}
+                  axisLine={{ stroke: 'rgba(255,255,255,0.05)' }}
                   tickLine={false}
                   tickFormatter={(v) => v.slice(5)}
                 />
                 <YAxis
                   yAxisId="price"
-                  tick={{ fill: '#71717a', fontSize: 11 }}
+                  tick={{ fill: '#6b7280', fontSize: 11 }}
                   axisLine={false}
                   tickLine={false}
                   domain={['dataMin - 10', 'dataMax + 10']}
@@ -98,7 +98,7 @@ export function TrendChart({ data }) {
                 <YAxis
                   yAxisId="orders"
                   orientation="right"
-                  tick={{ fill: '#71717a', fontSize: 11 }}
+                  tick={{ fill: '#6b7280', fontSize: 11 }}
                   axisLine={false}
                   tickLine={false}
                 />
@@ -108,33 +108,33 @@ export function TrendChart({ data }) {
                   type="monotone"
                   dataKey="avgPrice"
                   name="客单价"
-                  stroke="#5e6ad2"
+                  stroke="#00b8a9"
                   strokeWidth={2}
                   fill="url(#priceGradient)"
                   dot={false}
-                  activeDot={{ r: 4, fill: '#5e6ad2', stroke: '#0f1117', strokeWidth: 2 }}
+                  activeDot={{ r: 4, fill: '#00b8a9', stroke: '#111318', strokeWidth: 2 }}
                 />
                 <Area
                   yAxisId="orders"
                   type="monotone"
                   dataKey="orderCount"
                   name="订单量"
-                  stroke="#27a644"
+                  stroke="#10b981"
                   strokeWidth={2}
                   fill="url(#orderGradient)"
                   dot={false}
-                  activeDot={{ r: 4, fill: '#27a644', stroke: '#0f1117', strokeWidth: 2 }}
+                  activeDot={{ r: 4, fill: '#10b981', stroke: '#111318', strokeWidth: 2 }}
                 />
               </AreaChart>
             </ResponsiveContainer>
           </div>
           <div className="mt-3 flex items-center justify-center gap-6 text-[11px] text-text-muted">
             <div className="flex items-center gap-1.5">
-              <span className="h-[3px] w-4 rounded-full bg-accent" />
+              <span className="h-[2px] w-4 rounded-full" style={{ background: '#00b8a9' }} />
               客单价 (¥)
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="h-[3px] w-4 rounded-full bg-success" />
+              <span className="h-[2px] w-4 rounded-full" style={{ background: '#10b981' }} />
               订单量
             </div>
           </div>
@@ -147,11 +147,11 @@ export function TrendChart({ data }) {
 export function DistrictChart({ data }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 16 }}
+      initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.5, duration: 0.5 }}
+      transition={{ delay: 0.4, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
     >
-      <Card className="glass-card h-full">
+      <Card className="h-full">
         <CardHeader>
           <CardTitle>区域均价对比</CardTitle>
         </CardHeader>
@@ -163,10 +163,10 @@ export function DistrictChart({ data }) {
                 layout="vertical"
                 margin={{ top: 0, right: 10, left: 10, bottom: 0 }}
               >
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" horizontal={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" horizontal={false} />
                 <XAxis
                   type="number"
-                  tick={{ fill: '#71717a', fontSize: 11 }}
+                  tick={{ fill: '#6b7280', fontSize: 11 }}
                   axisLine={false}
                   tickLine={false}
                   tickFormatter={(v) => `¥${v}`}
@@ -174,7 +174,7 @@ export function DistrictChart({ data }) {
                 <YAxis
                   type="category"
                   dataKey="district"
-                  tick={{ fill: '#a1a1aa', fontSize: 11 }}
+                  tick={{ fill: '#9ca3af', fontSize: 11 }}
                   axisLine={false}
                   tickLine={false}
                   width={65}
@@ -184,13 +184,13 @@ export function DistrictChart({ data }) {
                   dataKey="avgPrice"
                   name="均价"
                   radius={[0, 4, 4, 0]}
-                  maxBarSize={20}
+                  maxBarSize={18}
                 >
                   {data.map((_, index) => (
                     <Cell
                       key={index}
                       fill={CHART_COLORS[index % CHART_COLORS.length]}
-                      fillOpacity={0.8}
+                      fillOpacity={0.75}
                     />
                   ))}
                 </Bar>
@@ -206,16 +206,16 @@ export function DistrictChart({ data }) {
 export function ServiceChart({ data }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 16 }}
+      initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.55, duration: 0.5 }}
+      transition={{ delay: 0.45, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
     >
-      <Card className="glass-card h-full">
+      <Card className="h-full">
         <CardHeader>
           <CardTitle>服务类型分布</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="chart-container h-[260px]">
+          <div className="chart-container h-[240px]">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
@@ -224,9 +224,9 @@ export function ServiceChart({ data }) {
                   nameKey="service"
                   cx="50%"
                   cy="50%"
-                  innerRadius={55}
-                  outerRadius={85}
-                  paddingAngle={3}
+                  innerRadius={50}
+                  outerRadius={80}
+                  paddingAngle={4}
                   stroke="none"
                 >
                   {data.map((_, index) => (
@@ -237,7 +237,7 @@ export function ServiceChart({ data }) {
               </PieChart>
             </ResponsiveContainer>
           </div>
-          <div className="mt-2 grid grid-cols-2 gap-2">
+          <div className="mt-3 grid grid-cols-2 gap-2">
             {data.map((item, i) => (
               <div key={item.service} className="flex items-center gap-2 text-[11px]">
                 <span className="h-2 w-2 rounded-full" style={{ background: CHART_COLORS[i] }} />

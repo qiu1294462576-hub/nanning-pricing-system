@@ -16,11 +16,11 @@ const analysisData = monthlyTrend.map(m => ({
 }))
 
 const marginDistribution = [
-  { range: '<20%', count: 320, color: '#e5484d' },
-  { range: '20-30%', count: 1850, color: '#e8a735' },
-  { range: '30-40%', count: 4520, color: '#27a644' },
-  { range: '40-50%', count: 3840, color: '#5e6ad2' },
-  { range: '>50%', count: 2202, color: '#7a7fad' },
+  { range: '<20%', count: 320, color: '#ef4444' },
+  { range: '20-30%', count: 1850, color: '#f59e0b' },
+  { range: '30-40%', count: 4520, color: '#10b981' },
+  { range: '40-50%', count: 3840, color: '#00b8a9' },
+  { range: '>50%', count: 2202, color: '#8b7cf6' },
 ]
 
 export function AnalyticsPage() {
@@ -42,7 +42,7 @@ export function AnalyticsPage() {
             { label: '平均客单价', value: parseFloat(avgOrderPrice), prefix: '¥', decimals: 1 },
             { label: '订单总量', value: sliced.reduce((s, d) => s + d.orderCount, 0), suffix: '单' },
           ].map((item, i) => (
-            <Card key={i} className="glass-card">
+            <Card key={i}>
               <CardContent className="py-4">
                 <div className="text-[11px] text-text-muted">{item.label}</div>
                 <div className="mt-1 text-[22px] font-semibold text-text-primary">
@@ -56,7 +56,7 @@ export function AnalyticsPage() {
 
       {/* Revenue + Profit Trend */}
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1, duration: 0.4 }}>
-        <Card className="glass-card">
+        <Card>
           <CardHeader className="flex-row items-center justify-between">
             <CardTitle>营收与利润趋势</CardTitle>
             <div className="flex gap-1">
@@ -76,20 +76,20 @@ export function AnalyticsPage() {
                 <AreaChart data={sliced} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
                   <defs>
                     <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#5e6ad2" stopOpacity={0.3} />
-                      <stop offset="100%" stopColor="#5e6ad2" stopOpacity={0} />
+                      <stop offset="0%" stopColor="#00b8a9" stopOpacity={0.3} />
+                      <stop offset="100%" stopColor="#00b8a9" stopOpacity={0} />
                     </linearGradient>
                     <linearGradient id="profGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#27a644" stopOpacity={0.2} />
-                      <stop offset="100%" stopColor="#27a644" stopOpacity={0} />
+                      <stop offset="0%" stopColor="#10b981" stopOpacity={0.2} />
+                      <stop offset="100%" stopColor="#10b981" stopOpacity={0} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
-                  <XAxis dataKey="month" tick={{ fill: '#71717a', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={v => v.slice(5)} />
-                  <YAxis tick={{ fill: '#71717a', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={v => `${v}万`} />
-                  <Tooltip contentStyle={{ background: '#181a21', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, fontSize: 12 }} labelStyle={{ color: '#71717a' }} />
-                  <Area type="monotone" dataKey="revenue" name="营收(万)" stroke="#5e6ad2" strokeWidth={2} fill="url(#revGrad)" dot={false} />
-                  <Area type="monotone" dataKey="profitEstimate" name="利润(万)" stroke="#27a644" strokeWidth={2} fill="url(#profGrad)" dot={false} />
+                  <XAxis dataKey="month" tick={{ fill: '#9ca3af', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={v => v.slice(5)} />
+                  <YAxis tick={{ fill: '#9ca3af', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={v => `${v}万`} />
+                  <Tooltip contentStyle={{ background: '#181a21', border: '1px solid rgba(255,255,255,0.055)', borderRadius: 8, fontSize: 12 }} labelStyle={{ color: '#9ca3af' }} />
+                  <Area type="monotone" dataKey="revenue" name="营收(万)" stroke="#00b8a9" strokeWidth={2} fill="url(#revGrad)" dot={false} />
+                  <Area type="monotone" dataKey="profitEstimate" name="利润(万)" stroke="#10b981" strokeWidth={2} fill="url(#profGrad)" dot={false} />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
@@ -100,16 +100,16 @@ export function AnalyticsPage() {
       {/* Two column: Margin Distribution + District Performance */}
       <div className="grid gap-4 lg:grid-cols-2">
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.4 }}>
-          <Card className="glass-card h-full">
+          <Card className="h-full">
             <CardHeader><CardTitle>利润率分布</CardTitle></CardHeader>
             <CardContent>
               <div className="chart-container h-[240px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={marginDistribution} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
-                    <XAxis dataKey="range" tick={{ fill: '#71717a', fontSize: 11 }} axisLine={false} tickLine={false} />
-                    <YAxis tick={{ fill: '#71717a', fontSize: 11 }} axisLine={false} tickLine={false} />
-                    <Tooltip contentStyle={{ background: '#181a21', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, fontSize: 12 }} />
+                    <XAxis dataKey="range" tick={{ fill: '#9ca3af', fontSize: 11 }} axisLine={false} tickLine={false} />
+                    <YAxis tick={{ fill: '#9ca3af', fontSize: 11 }} axisLine={false} tickLine={false} />
+                    <Tooltip contentStyle={{ background: '#181a21', border: '1px solid rgba(255,255,255,0.055)', borderRadius: 8, fontSize: 12 }} />
                     <Bar dataKey="count" name="订单数" radius={[4, 4, 0, 0]} maxBarSize={40}>
                       {marginDistribution.map((d, i) => <Cell key={i} fill={d.color} fillOpacity={0.8} />)}
                     </Bar>
@@ -121,7 +121,7 @@ export function AnalyticsPage() {
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25, duration: 0.4 }}>
-          <Card className="glass-card h-full">
+          <Card className="h-full">
             <CardHeader><CardTitle>区域经营对比</CardTitle></CardHeader>
             <CardContent>
               <div className="space-y-2.5">
@@ -133,9 +133,9 @@ export function AnalyticsPage() {
                         <motion.div
                           initial={{ width: 0 }}
                           animate={{ width: `${(d.orders / 3000) * 100}%` }}
-                          transition={{ delay: 0.3 + i * 0.05, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                          transition={{ delay: 0.3 + i * 0.05, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
                           className="absolute inset-y-0 left-0 rounded-full"
-                          style={{ background: `linear-gradient(90deg, #5e6ad2, #7a7fad)` }}
+                          style={{ background: `linear-gradient(90deg, #00b8a9, #8b7cf6)` }}
                         />
                       </div>
                     </div>

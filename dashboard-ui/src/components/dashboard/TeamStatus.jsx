@@ -9,22 +9,16 @@ const statusColors = {
   offline: 'bg-text-subtle',
 }
 
-const statusLabels = {
-  online: '在线',
-  busy: '忙碌',
-  offline: '离线',
-}
-
 export function TeamStatus({ members }) {
   const onlineCount = members.filter(m => m.status === 'online').length
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 16 }}
+      initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.65, duration: 0.5 }}
+      transition={{ delay: 0.55, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
     >
-      <Card className="glass-card">
+      <Card>
         <CardHeader className="flex-row items-center justify-between">
           <CardTitle>团队状态</CardTitle>
           <span className="text-[11px] text-text-muted">
@@ -33,63 +27,60 @@ export function TeamStatus({ members }) {
         </CardHeader>
         <CardContent className="p-0">
           {members.length === 0 ? (
-            <div className="flex flex-col items-center py-8 text-center">
-              <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-full" style={{ background: 'rgba(94, 106, 210, 0.1)' }}>
-                <Users className="h-4 w-4" style={{ color: '#5e6ad2' }} />
+            <div className="flex flex-col items-center py-10 text-center">
+              <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-xl bg-accent-muted">
+                <Users className="h-5 w-5 text-accent" strokeWidth={1.8} />
               </div>
-              <p className="text-[12px] text-text-muted">暂无团队成员</p>
-              <p className="mt-0.5 text-[10px] text-text-subtle">在团队管理页面中添加成员</p>
+              <p className="text-[13px] font-medium text-text-secondary">暂无团队成员</p>
+              <p className="mt-1 text-[11px] text-text-muted">在团队管理页面中添加成员</p>
             </div>
           ) : (
-          <div className="divide-y divide-border-subtle">
-            {members.map((member, index) => (
-              <motion.div
-                key={member.id}
-                initial={{ opacity: 0, x: -8 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.7 + index * 0.06, duration: 0.3 }}
-                className="flex items-center gap-3 px-5 py-2.5 transition-colors hover:bg-bg-hover/50"
-              >
-                {/* Avatar */}
-                <div className="relative flex-shrink-0">
-                  <div
-                    className="flex h-8 w-8 items-center justify-center rounded-full text-[12px] font-semibold text-white"
-                    style={{
-                      background: member.status === 'online'
-                        ? 'linear-gradient(135deg, #5e6ad2, #7a7fad)'
-                        : member.status === 'busy'
-                          ? 'linear-gradient(135deg, #e8a735, #d97706)'
-                          : undefined,
-                      backgroundColor: member.status === 'offline' ? 'var(--color-bg-active)' : undefined,
-                    }}
-                  >
-                    {member.name[0]}
+            <div className="divide-y divide-border-subtle">
+              {members.map((member, index) => (
+                <motion.div
+                  key={member.id}
+                  initial={{ opacity: 0, x: -6 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.6 + index * 0.05, duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                  className="flex items-center gap-3 px-5 py-2.5 transition-colors hover:bg-bg-hover/40"
+                >
+                  <div className="relative flex-shrink-0">
+                    <div
+                      className="flex h-8 w-8 items-center justify-center rounded-full text-[12px] font-semibold text-white"
+                      style={{
+                        background: member.status === 'online'
+                          ? 'linear-gradient(135deg, #00b8a9, #10b981)'
+                          : member.status === 'busy'
+                            ? 'linear-gradient(135deg, #f59e0b, #d97706)'
+                            : undefined,
+                        backgroundColor: member.status === 'offline' ? 'var(--color-bg-active)' : undefined,
+                      }}
+                    >
+                      {member.name[0]}
+                    </div>
+                    <span className={cn(
+                      'status-dot absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-bg-surface',
+                      statusColors[member.status]
+                    )} />
                   </div>
-                  <span className={cn(
-                    'status-dot absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-bg-surface',
-                    statusColors[member.status]
-                  )} />
-                </div>
 
-                {/* Info */}
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <span className="text-[13px] font-medium text-text-primary">{member.name}</span>
-                    <span className="text-[10px] text-text-subtle">{member.role}</span>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[13px] font-medium text-text-primary">{member.name}</span>
+                      <span className="text-[10px] text-text-subtle">{member.role}</span>
+                    </div>
+                    <p className="mt-0.5 truncate text-[11px] text-text-muted">
+                      {member.status === 'offline' ? '—' : member.currentTask}
+                    </p>
                   </div>
-                  <p className="mt-0.5 truncate text-[11px] text-text-muted">
-                    {member.status === 'offline' ? '—' : member.currentTask}
-                  </p>
-                </div>
 
-                {/* Stats */}
-                <div className="flex-shrink-0 text-right">
-                  <div className="text-[12px] font-medium text-text-secondary">{member.tasksCompleted}</div>
-                  <div className="text-[9px] text-text-subtle">已完成</div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
+                  <div className="flex-shrink-0 text-right">
+                    <div className="text-[12px] font-semibold text-text-secondary">{member.tasksCompleted}</div>
+                    <div className="text-[9px] text-text-subtle">已完成</div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
           )}
         </CardContent>
       </Card>

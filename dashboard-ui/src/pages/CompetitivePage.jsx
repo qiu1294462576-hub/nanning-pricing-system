@@ -5,7 +5,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 
 const platforms = ['美团家政', '天鹅到家', '58到家']
-const platformColors = { '美团家政': '#e8a735', '天鹅到家': '#5e6ad2', '58到家': '#27a644' }
+const platformColors = { '美团家政': '#f59e0b', '天鹅到家': '#00b8a9', '58到家': '#10b981' }
 
 const competitiveData = [
   { service: '日常保洁', '美团家政': 138, '天鹅到家': 155, '58到家': 130, ourPrice: 142 },
@@ -43,7 +43,7 @@ export function CompetitivePage() {
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
         <div className="grid grid-cols-3 gap-3">
           {platforms.map(p => (
-            <Card key={p} className="glass-card">
+            <Card key={p}>
               <CardContent className="flex items-center gap-3 py-4">
                 <div className="h-8 w-8 rounded-full" style={{ background: platformColors[p], opacity: 0.2 }}>
                   <div className="flex h-full items-center justify-center text-[12px] font-bold" style={{ color: platformColors[p] }}>
@@ -62,20 +62,20 @@ export function CompetitivePage() {
 
       {/* Price Comparison Chart */}
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1, duration: 0.4 }}>
-        <Card className="glass-card">
+        <Card>
           <CardHeader><CardTitle>竞品价格对比（各服务类型均价）</CardTitle></CardHeader>
           <CardContent>
             <div className="chart-container h-[280px]">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={competitiveData} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
-                  <XAxis dataKey="service" tick={{ fill: '#71717a', fontSize: 11 }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fill: '#71717a', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={v => `¥${v}`} />
-                  <Tooltip contentStyle={{ background: '#181a21', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, fontSize: 12 }} />
-                  <Bar dataKey="美团家政" fill="#e8a735" radius={[3, 3, 0, 0]} maxBarSize={24} />
-                  <Bar dataKey="天鹅到家" fill="#5e6ad2" radius={[3, 3, 0, 0]} maxBarSize={24} />
-                  <Bar dataKey="58到家" fill="#27a644" radius={[3, 3, 0, 0]} maxBarSize={24} />
-                  <Bar dataKey="ourPrice" name="我们" fill="#7170ff" radius={[3, 3, 0, 0]} maxBarSize={24} />
+                  <XAxis dataKey="service" tick={{ fill: '#9ca3af', fontSize: 11 }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fill: '#9ca3af', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={v => `¥${v}`} />
+                  <Tooltip contentStyle={{ background: '#181a21', border: '1px solid rgba(255,255,255,0.055)', borderRadius: 8, fontSize: 12 }} />
+                  <Bar dataKey="美团家政" fill="#f59e0b" radius={[3, 3, 0, 0]} maxBarSize={24} />
+                  <Bar dataKey="天鹅到家" fill="#00b8a9" radius={[3, 3, 0, 0]} maxBarSize={24} />
+                  <Bar dataKey="58到家" fill="#10b981" radius={[3, 3, 0, 0]} maxBarSize={24} />
+                  <Bar dataKey="ourPrice" name="我们" fill="#8b7cf6" radius={[3, 3, 0, 0]} maxBarSize={24} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -85,7 +85,7 @@ export function CompetitivePage() {
 
       {/* Latest Records */}
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.4 }}>
-        <Card className="glass-card">
+        <Card>
           <CardHeader className="flex-row items-center justify-between">
             <CardTitle>最新竞品价格采集</CardTitle>
             <div className="flex gap-1">

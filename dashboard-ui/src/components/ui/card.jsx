@@ -5,7 +5,7 @@ const Card = React.forwardRef(({ className, ...props }, ref) => (
   <div
     ref={ref}
     className={cn(
-      'rounded-[var(--radius-lg)] border border-border-default bg-bg-surface',
+      'card overflow-hidden',
       className
     )}
     {...props}
@@ -21,7 +21,7 @@ CardHeader.displayName = 'CardHeader'
 const CardTitle = React.forwardRef(({ className, ...props }, ref) => (
   <h3
     ref={ref}
-    className={cn('text-[13px] font-medium tracking-[-0.01em] text-text-secondary', className)}
+    className={cn('text-[13px] font-semibold tracking-[-0.01em] text-text-secondary', className)}
     {...props}
   />
 ))
@@ -30,7 +30,7 @@ CardTitle.displayName = 'CardTitle'
 const CardDescription = React.forwardRef(({ className, ...props }, ref) => (
   <p
     ref={ref}
-    className={cn('text-[12px] text-text-muted', className)}
+    className={cn('text-[12px] leading-relaxed text-text-muted', className)}
     {...props}
   />
 ))

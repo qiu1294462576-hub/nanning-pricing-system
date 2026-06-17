@@ -101,7 +101,7 @@ export function SettingsPage() {
         <motion.div key={section.title}
           initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.05 + si * 0.08, duration: 0.4 }}>
-          <Card className="glass-card">
+          <Card>
             <CardHeader>
               <div className="flex items-center gap-2">
                 <CardTitle>{section.title}</CardTitle>

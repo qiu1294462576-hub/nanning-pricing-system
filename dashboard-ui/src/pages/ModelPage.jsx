@@ -41,7 +41,7 @@ export function ModelPage() {
     <>
       {/* Model Status */}
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
-        <Card className="glass-card">
+        <Card>
           <CardContent className="flex items-center gap-4 py-5">
             <div className="flex h-12 w-12 items-center justify-center rounded-[var(--radius-lg)] bg-success-muted text-[20px]">🤖</div>
             <div className="flex-1">
@@ -62,7 +62,7 @@ export function ModelPage() {
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1, duration: 0.4 }}>
         <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
           {modelMetrics.map((m, i) => (
-            <Card key={i} className="glass-card">
+            <Card key={i}>
               <CardContent className="py-3">
                 <div className="text-[10px] text-text-subtle">{m.label}</div>
                 <div className="mt-0.5 text-[18px] font-semibold text-text-primary">{m.value}</div>
@@ -76,23 +76,23 @@ export function ModelPage() {
       <div className="grid gap-4 lg:grid-cols-2">
         {/* AI vs Legacy */}
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.4 }}>
-          <Card className="glass-card h-full">
+          <Card className="h-full">
             <CardHeader><CardTitle>AI vs 传统模型对比</CardTitle></CardHeader>
             <CardContent>
               <div className="chart-container h-[280px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <RadarChart data={radarData}>
-                    <PolarGrid stroke="rgba(255,255,255,0.06)" />
-                    <PolarAngleAxis dataKey="metric" tick={{ fill: '#a1a1aa', fontSize: 11 }} />
-                    <Radar name="AI模型" dataKey="ai" stroke="#5e6ad2" fill="#5e6ad2" fillOpacity={0.2} strokeWidth={2} />
-                    <Radar name="传统模型" dataKey="legacy" stroke="#e5484d" fill="#e5484d" fillOpacity={0.1} strokeWidth={2} />
-                    <Tooltip contentStyle={{ background: '#181a21', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, fontSize: 12 }} />
+                    <PolarGrid stroke="rgba(255,255,255,0.055)" />
+                    <PolarAngleAxis dataKey="metric" tick={{ fill: '#9ca3af', fontSize: 11 }} />
+                    <Radar name="AI模型" dataKey="ai" stroke="#00b8a9" fill="#00b8a9" fillOpacity={0.2} strokeWidth={2} />
+                    <Radar name="传统模型" dataKey="legacy" stroke="#ef4444" fill="#ef4444" fillOpacity={0.1} strokeWidth={2} />
+                    <Tooltip contentStyle={{ background: '#181a21', border: '1px solid rgba(255,255,255,0.055)', borderRadius: 8, fontSize: 12 }} />
                   </RadarChart>
                 </ResponsiveContainer>
               </div>
               <div className="mt-3 flex justify-center gap-6 text-[11px]">
-                <div className="flex items-center gap-1.5"><span className="h-[3px] w-4 rounded-full bg-[#5e6ad2]" />AI模型</div>
-                <div className="flex items-center gap-1.5"><span className="h-[3px] w-4 rounded-full bg-[#e5484d]" />传统模型</div>
+                <div className="flex items-center gap-1.5"><span className="h-[3px] w-4 rounded-full bg-[#00b8a9]" />AI模型</div>
+                <div className="flex items-center gap-1.5"><span className="h-[3px] w-4 rounded-full bg-[#ef4444]" />传统模型</div>
               </div>
             </CardContent>
           </Card>
@@ -100,7 +100,7 @@ export function ModelPage() {
 
         {/* Feature Importance */}
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25, duration: 0.4 }}>
-          <Card className="glass-card h-full">
+          <Card className="h-full">
             <CardHeader><CardTitle>特征重要性排名 (Top 10)</CardTitle></CardHeader>
             <CardContent>
               <div className="space-y-2">
@@ -112,9 +112,9 @@ export function ModelPage() {
                         <motion.div
                           initial={{ width: 0 }}
                           animate={{ width: `${(f.importance / 0.18) * 100}%` }}
-                          transition={{ delay: 0.3 + i * 0.05, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                          transition={{ delay: 0.3 + i * 0.05, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
                           className="absolute inset-y-0 left-0 rounded-full"
-                          style={{ background: i < 3 ? 'linear-gradient(90deg, #5e6ad2, #7170ff)' : 'rgba(94,106,210,0.4)' }}
+                          style={{ background: i < 3 ? 'linear-gradient(90deg, #00b8a9, #8b7cf6)' : 'rgba(0,184,169,0.4)' }}
                         />
                       </div>
                     </div>

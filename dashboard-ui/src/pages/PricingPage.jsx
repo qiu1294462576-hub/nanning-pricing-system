@@ -48,13 +48,13 @@ export function PricingPage() {
   const fadeIn = (delay = 0) => ({
     initial: { opacity: 0, y: 12 },
     animate: { opacity: 1, y: 0 },
-    transition: { delay, duration: 0.4, ease: [0.16, 1, 0.3, 1] },
+    transition: { delay, duration: 0.4, ease: [0.22, 1, 0.36, 1] },
   })
 
   return (
     <>
       <motion.div {...fadeIn()}>
-        <Card className="glass-card">
+        <Card>
           <CardHeader className="flex-row items-center gap-2">
             <Sparkles className="h-4 w-4 text-accent-hover" />
             <CardTitle>智能定价计算器</CardTitle>
@@ -194,7 +194,7 @@ export function PricingPage() {
 
       {/* Pricing Factor Analysis */}
       <motion.div {...fadeIn(0.15)}>
-        <Card className="glass-card">
+        <Card>
           <CardHeader>
             <CardTitle>四层定价模型</CardTitle>
           </CardHeader>

@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { Circle, Clock, CheckCircle2, AlertCircle, MoreHorizontal } from 'lucide-react'
+import { Circle, Clock, CheckCircle2, AlertCircle } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
@@ -20,11 +20,11 @@ const priorityConfig = {
 export function TaskList({ tasks }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 16 }}
+      initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.6, duration: 0.5 }}
+      transition={{ delay: 0.5, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
     >
-      <Card className="glass-card">
+      <Card>
         <CardHeader className="flex-row items-center justify-between">
           <CardTitle>待办任务</CardTitle>
           <span className="text-[11px] text-text-muted">
@@ -41,36 +41,35 @@ export function TaskList({ tasks }) {
               return (
                 <motion.div
                   key={task.id}
-                  initial={{ opacity: 0, x: -8 }}
+                  initial={{ opacity: 0, x: -6 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.65 + index * 0.06, duration: 0.3 }}
-                  className="group flex items-start gap-3 px-5 py-3 transition-colors hover:bg-bg-hover/50"
+                  transition={{ delay: 0.55 + index * 0.05, duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                  className="group flex items-start gap-3 px-5 py-3 transition-colors hover:bg-bg-hover/40"
                 >
-                  <StatusIcon className={cn('mt-0.5 h-4 w-4 flex-shrink-0', status.color)} />
+                  <StatusIcon className={cn('mt-0.5 h-[15px] w-[15px] flex-shrink-0', status.color)} strokeWidth={1.8} />
                   <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className={cn(
-                        'text-[13px] font-medium',
-                        task.status === 'done' ? 'text-text-muted line-through' : 'text-text-primary'
-                      )}>
-                        {task.title}
-                      </span>
-                    </div>
+                    <span className={cn(
+                      'text-[13px] font-medium leading-tight',
+                      task.status === 'done' ? 'text-text-muted line-through' : 'text-text-primary'
+                    )}>
+                      {task.title}
+                    </span>
                     <p className="mt-0.5 truncate text-[11px] text-text-muted">
                       {task.description}
                     </p>
                     <div className="mt-1.5 flex items-center gap-2">
                       <Badge variant={priority.variant}>{priority.label}</Badge>
                       {task.tags?.slice(0, 2).map(tag => (
-                        <span key={tag} className="text-[10px] text-text-subtle">
-                          #{tag}
-                        </span>
+                        <span key={tag} className="text-[10px] text-text-subtle">#{tag}</span>
                       ))}
                     </div>
                   </div>
                   <div className="flex flex-shrink-0 flex-col items-end gap-1">
                     <span className="text-[10px] text-text-subtle">{task.dueDate?.slice(5)}</span>
-                    <div className="flex h-5 w-5 items-center justify-center rounded-full text-[9px] font-medium text-white" style={{ background: 'linear-gradient(135deg, rgba(94,106,210,0.8), rgba(122,127,173,0.8))' }}>
+                    <div
+                      className="flex h-5 w-5 items-center justify-center rounded-full text-[9px] font-semibold text-white"
+                      style={{ background: 'linear-gradient(135deg, #00b8a9, #8b7cf6)' }}
+                    >
                       {task.assignee?.[0]}
                     </div>
                   </div>

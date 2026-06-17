@@ -107,15 +107,15 @@ export function OrdersPage() {
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.4 }}
           >
-            <Card className="glass-card">
+            <Card>
               <CardContent className="flex flex-col items-center py-12">
                 <motion.div
                   animate={{ y: [0, -4, 0] }}
                   transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
                   className="mb-4 flex h-16 w-16 items-center justify-center rounded-full"
-                  style={{ background: 'rgba(94, 106, 210, 0.1)', border: '1px solid rgba(94, 106, 210, 0.2)' }}
+                  style={{ background: 'rgba(0, 184, 169, 0.1)', border: '1px solid rgba(0, 184, 169, 0.2)' }}
                 >
-                  <Upload className="h-7 w-7" style={{ color: '#5e6ad2' }} />
+                  <Upload className="h-7 w-7" style={{ color: '#00b8a9' }} />
                 </motion.div>
                 <h3 className="mb-1 text-[16px] font-semibold text-text-primary">暂无订单数据</h3>
                 <p className="mb-6 max-w-sm text-center text-[13px] text-text-muted">
@@ -188,7 +188,7 @@ export function OrdersPage() {
               animate={{ rotate: 360 }}
               transition={{ duration: 1.2, repeat: Infinity, ease: 'linear' }}
               className="mb-4 h-10 w-10 rounded-full border-2 border-border-default"
-              style={{ borderTopColor: '#5e6ad2' }}
+              style={{ borderTopColor: '#00b8a9' }}
             />
             <p className="text-[14px] font-medium text-text-primary">正在解析文件...</p>
             <p className="mt-1 text-[12px] text-text-muted">请稍候，系统正在处理上传的订单数据</p>
@@ -211,12 +211,12 @@ export function OrdersPage() {
                 animate={{ opacity: 1, y: 0 }}
                 className="flex items-center justify-between rounded-[var(--radius-md)] border px-4 py-2.5"
                 style={{
-                  borderColor: 'rgba(39, 166, 68, 0.3)',
-                  background: 'rgba(39, 166, 68, 0.08)',
+                  borderColor: 'rgba(16, 185, 129, 0.3)',
+                  background: 'rgba(16, 185, 129, 0.08)',
                 }}
               >
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4" style={{ color: '#27a644' }} />
+                  <CheckCircle2 className="h-4 w-4" style={{ color: '#10b981' }} />
                   <span className="text-[12px] text-text-secondary">
                     成功导入 <span className="font-semibold text-text-primary">{uploadResult.count}</span> 条订单
                     <span className="ml-1 text-text-subtle">({uploadResult.fileName})</span>
@@ -239,14 +239,14 @@ export function OrdersPage() {
                   <button
                     key={key}
                     onClick={() => setStatusFilter(statusFilter === key ? 'all' : key)}
-                    className={`glass-card rounded-[var(--radius-lg)] border p-4 text-left transition-all ${
+                    className={`card rounded-[var(--radius-lg)] border p-4 text-left transition-all ${
                       statusFilter === key ? 'border-accent bg-accent-muted/30' : 'border-border-default hover:border-border-strong'
                     }`}
                   >
                     <div className="flex items-center gap-2">
                       <cfg.icon
                         className="h-4 w-4"
-                        style={{ color: cfg.color === 'success' ? '#27a644' : cfg.color === 'info' ? '#3e8ef7' : '#e8a735' }}
+                        style={{ color: cfg.color === 'success' ? '#10b981' : cfg.color === 'info' ? '#38bdf8' : '#f59e0b' }}
                       />
                       <span className="text-[12px] text-text-muted">{cfg.label}</span>
                     </div>
@@ -257,7 +257,7 @@ export function OrdersPage() {
             </div>
 
             {/* Order List */}
-            <Card className="glass-card">
+            <Card>
               <CardHeader className="flex-row items-center justify-between">
                 <CardTitle>
                   订单列表{' '}
@@ -314,7 +314,7 @@ export function OrdersPage() {
                       >
                         <status.icon
                           className="h-4 w-4 flex-shrink-0"
-                          style={{ color: status.color === 'success' ? '#27a644' : status.color === 'info' ? '#3e8ef7' : '#e8a735' }}
+                          style={{ color: status.color === 'success' ? '#10b981' : status.color === 'info' ? '#38bdf8' : '#f59e0b' }}
                         />
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2">
