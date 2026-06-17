@@ -1,0 +1,28 @@
+{
+  "pages": [
+    "pages/pricing/pricing",
+    "pages/cost-query/cost-query",
+    "pages/order-review/order-review",
+    "pages/params/params",
+    "pages/dashboard/dashboard"
+  ],
+  "window": {
+    "navigationBarTitleText": "南宁家政定价系统",
+    "navigationBarBackgroundColor": "#1a365d",
+    "navigationBarTextStyle": "white"
+  },
+  "tabBar": {
+    "color": "#94a3b8",
+    "selectedColor": "#2563eb",
+    "list": [
+      { "pagePath": "pages/pricing/pricing", "text": "智能定价" },
+      { "pagePath": "pages/cost-query/cost-query", "text": "成本查询" },
+      { "pagePath": "pages/order-review/order-review", "text": "订单复盘" },
+      { "pagePath": "pages/params/params", "text": "参数设置" },
+      { "pagePath": "pages/dashboard/dashboard", "text": "数据看板" }
+    ]
+  },
+  "networkTimeout": {
+    "request": 15000
+  }
+}

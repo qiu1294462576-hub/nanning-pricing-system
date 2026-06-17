@@ -1,0 +1,61 @@
+<!-- 南宁家政定价系统 — 成本查询页 -->
+<view class="card">
+  <view class="card-title">成本查询</view>
+  <view class="form-row">
+    <view class="form-group">
+      <view class="form-label">服务类型</view>
+      <picker mode="selector" range="{{serviceTypes}}" value="{{stIndex}}" bindchange="onSTChange">
+        <view class="form-picker">{{serviceTypes[stIndex]}}</view>
+      </picker>
+    </view>
+    <view class="form-group">
+      <view class="form-label">师傅等级</view>
+      <picker mode="selector" range="{{skillLevels}}" value="{{slIndex}}" bindchange="onSLChange">
+        <view class="form-picker">{{skillLevels[slIndex]}}</view>
+      </picker>
+    </view>
+  </view>
+  <view class="form-row">
+    <view class="form-group">
+      <view class="form-label">城区</view>
+      <picker mode="selector" range="{{districts}}" value="{{distIndex}}" bindchange="onDistChange">
+        <view class="form-picker">{{districts[distIndex]}}</view>
+      </picker>
+    </view>
+    <view class="form-group">
+      <view class="form-label">时间段</view>
+      <picker mode="selector" range="{{timePeriods}}" value="{{tpIndex}}" bindchange="onTPChange">
+        <view class="form-picker">{{timePeriods[tpIndex]}}</view>
+      </picker>
+    </view>
+  </view>
+  <view class="form-row">
+    <view class="form-group">
+      <view class="form-label">服务时长</view>
+      <input class="form-input" type="digit" value="{{duration}}" bindinput="onDurInput"/>
+    </view>
+    <view class="form-group">
+      <view class="form-label">户型</view>
+      <picker mode="selector" range="{{aptTypes}}" value="{{aptIndex}}" bindchange="onAptChange">
+        <view class="form-picker">{{aptTypes[aptIndex]}}</view>
+      </picker>
+    </view>
+  </view>
+  <view class="form-label">目标毛利率: {{targetMargin}}%</view>
+  <slider min="0" max="45" value="{{targetMargin}}" bindchange="onMarginChange" activeColor="#2563eb" block-size="20"/>
+  <button class="btn btn-outline btn-sm mt-16" bindtap="verifyServer">校对后端</button>
+</view>
+
+<view class="card" wx:if="{{result}}">
+  <view class="kpi-grid">
+    <view class="kpi-item red"><view class="kpi-label">总成本</view><view class="kpi-value">{{result.totalCost}}</view></view>
+    <view class="kpi-item blue"><view class="kpi-label">保本价</view><view class="kpi-value">{{result.breakEven}}</view></view>
+    <view class="kpi-item green"><view class="kpi-label">目标售价</view><view class="kpi-value">{{result.targetPrice}}</view></view>
+  </view>
+
+  <view class="card-title">成本明细</view>
+  <view class="cost-item" wx:for="{{costItems}}" wx:key="name">
+    <text><text class="cost-dot" style="background:{{item.color}}"></text>{{item.name}}</text>
+    <text style="font-weight:600">{{item.value}}</text>
+  </view>
+</view>

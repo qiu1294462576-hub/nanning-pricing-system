@@ -1,0 +1,24 @@
+<!-- 南宁家政定价系统 — 数据看板页 -->
+<view class="card">
+  <view class="card-title">运营概览</view>
+  <view class="kpi-grid" wx:if="{{kpi}}">
+    <view class="kpi-item blue"><view class="kpi-label">总订单数</view><view class="kpi-value">{{kpi.total_orders}}</view></view>
+    <view class="kpi-item blue"><view class="kpi-label">平均客单价</view><view class="kpi-value">¥{{kpi.avg_price}}</view></view>
+    <view class="kpi-item green"><view class="kpi-label">平均毛利率</view><view class="kpi-value">{{kpi.avg_margin_pct}}%</view></view>
+    <view class="kpi-item red"><view class="kpi-label">亏损率</view><view class="kpi-value">{{kpi.loss_rate_pct}}%</view></view>
+    <view class="kpi-item purple"><view class="kpi-label">总收入</view><view class="kpi-value">{{kpi.total_revenue_display}}</view></view>
+    <view class="kpi-item green"><view class="kpi-label">总利润</view><view class="kpi-value">{{kpi.total_profit_display}}</view></view>
+  </view>
+</view>
+
+<view class="card" wx:if="{{districtBreakdown}}">
+  <view class="card-title">城区平均客单价</view>
+  <view class="cost-item" wx:for="{{districtBreakdown}}" wx:key="district">
+    <text>{{item.district}}</text>
+    <text style="font-weight:600;color:#2563eb">¥{{item.avg_price}}</text>
+  </view>
+</view>
+
+<view class="card">
+  <button class="btn btn-outline btn-block" bindtap="refresh">🔄 刷新数据</button>
+</view>

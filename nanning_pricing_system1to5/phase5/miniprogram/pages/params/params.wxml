@@ -1,0 +1,36 @@
+<!-- 南宁家政定价系统 — 参数设置页 -->
+<view class="card">
+  <view class="card-title">参数设置</view>
+  <view class="text-muted mb-16">修改成本参数将影响所有后续定价计算</view>
+</view>
+
+<view class="card">
+  <view class="collapse-header" bindtap="toggleSection" data-id="0">
+    <text>师傅到手时薪（元/小时）</text><text>{{sections[0].open ? '▲' : '▼'}}</text>
+  </view>
+  <view wx:if="{{sections[0].open}}">
+    <view class="form-row" wx:for="{{['新手','熟练','金牌']}}" wx:key="*this" wx:for-item="sl">
+      <view class="form-group"><view class="form-label">{{sl}}</view></view>
+      <input class="form-input" type="digit" value="{{params['师傅到手时薪'][sl]}}" data-cat="师傅到手时薪" data-sub="{{sl}}" bindinput="onParamInput" style="width:120rpx"/>
+      <text class="text-muted">元/h</text>
+    </view>
+  </view>
+</view>
+
+<view class="card">
+  <view class="collapse-header" bindtap="toggleSection" data-id="1">
+    <text>交通加价（按城区）</text><text>{{sections[1].open ? '▲' : '▼'}}</text>
+  </view>
+  <view wx:if="{{sections[1].open}}">
+    <view class="form-row" wx:for="{{districts}}" wx:key="*this" wx:for-item="d">
+      <view class="form-group"><view class="form-label">{{d}}</view></view>
+      <input class="form-input" type="digit" value="{{params['交通加价'][d]}}" data-cat="交通加价" data-sub="{{d}}" bindinput="onParamInput" style="width:120rpx"/>
+      <text class="text-muted">元/次</text>
+    </view>
+  </view>
+</view>
+
+<view class="card">
+  <button class="btn btn-outline btn-block" bindtap="resetAll">全部重置</button>
+  <button class="btn btn-primary btn-block mt-16" bindtap="saveParams" loading="{{saving}}">保存修改</button>
+</view>

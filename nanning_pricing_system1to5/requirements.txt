@@ -1,0 +1,38 @@
+# 南宁家政动态定价系统 — Python 依赖
+# 生成日期: 2026-05-21
+
+# === 数据处理 ===
+numpy>=1.26.0
+pandas>=1.0.0
+chinese-calendar>=1.11.0    # 中国节假日/三月三等地方假期
+
+# === AI/ML 定价引擎 ===
+scikit-learn>=0.24.1
+xgboost>=2.0.0
+stable-baselines3>=2.0.0     # 强化学习（PPO/DQN）
+# FinRL  # 可选：更高级的RL框架，但重量级，SB3已满足需求
+
+# === 价格弹性与优化 ===
+PyPortfolioOpt>=1.6.0        # 需求曲线拟合/最优定价点
+cvxpy>=1.9.0                 # 凸优化（PyPortfolioOpt 依赖）
+scipy>=1.3.0
+
+# === Web 抓取 ===
+scrapy>=2.11.0
+selenium>=4.0.0
+beautifulsoup4>=4.12.0
+
+# === 后端（FastAPI） ===
+fastapi>=0.110.0
+uvicorn>=0.30.0
+sqlalchemy>=2.0.0
+alembic>=1.13.0
+pydantic>=2.0.0
+
+# === 数据可视化 ===
+matplotlib>=3.7.0
+seaborn>=0.13.0
+plotly>=5.18.0
+
+# === 部署 ===
+docker>=7.0.0

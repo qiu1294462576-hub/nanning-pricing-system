@@ -1,0 +1,90 @@
+<!-- 南宁家政定价系统 — 智能定价页 -->
+<view class="card">
+  <view class="card-title">服务信息</view>
+
+  <view class="form-row">
+    <view class="form-group">
+      <view class="form-label">服务类型</view>
+      <picker mode="selector" range="{{serviceTypes}}" value="{{serviceTypeIndex}}" bindchange="onServiceTypeChange">
+        <view class="form-picker">{{serviceTypes[serviceTypeIndex]}}</view>
+      </picker>
+    </view>
+    <view class="form-group">
+      <view class="form-label">师傅等级</view>
+      <picker mode="selector" range="{{skillLevels}}" value="{{skillLevelIndex}}" bindchange="onSkillLevelChange">
+        <view class="form-picker">{{skillLevels[skillLevelIndex]}}</view>
+      </picker>
+    </view>
+  </view>
+
+  <view class="form-row">
+    <view class="form-group">
+      <view class="form-label">城区</view>
+      <picker mode="selector" range="{{districts}}" value="{{districtIndex}}" bindchange="onDistrictChange">
+        <view class="form-picker">{{districts[districtIndex]}}</view>
+      </picker>
+    </view>
+    <view class="form-group">
+      <view class="form-label">时间段</view>
+      <picker mode="selector" range="{{timePeriods}}" value="{{timePeriodIndex}}" bindchange="onTimePeriodChange">
+        <view class="form-picker">{{timePeriods[timePeriodIndex]}}</view>
+      </picker>
+    </view>
+  </view>
+
+  <view class="form-row">
+    <view class="form-group">
+      <view class="form-label">服务时长（小时）</view>
+      <input class="form-input" type="digit" value="{{duration}}" bindinput="onDurationInput" placeholder="3"/>
+    </view>
+    <view class="form-group">
+      <view class="form-label">户型</view>
+      <picker mode="selector" range="{{apartmentTypes}}" value="{{apartmentTypeIndex}}" bindchange="onApartmentTypeChange">
+        <view class="form-picker">{{apartmentTypes[apartmentTypeIndex]}}</view>
+      </picker>
+    </view>
+  </view>
+
+  <!-- Mode Toggle -->
+  <view class="mode-row">
+    <view class="mode-item {{mode === 'ai' ? 'active' : ''}}" bindtap="setMode" data-mode="ai">AI 定价</view>
+    <view class="mode-item {{mode === 'rule' ? 'active' : ''}}" bindtap="setMode" data-mode="rule">纯规则</view>
+    <view class="mode-item {{mode === 'compare' ? 'active' : ''}}" bindtap="setMode" data-mode="compare">对比</view>
+  </view>
+
+  <button class="btn btn-primary btn-block" bindtap="getPrice" loading="{{priceLoading}}">获取定价</button>
+</view>
+
+<!-- Result -->
+<view class="card" wx:if="{{result}}">
+  <view class="card-title">定价结果</view>
+
+  <view class="kpi-grid" wx:if="{{mode !== 'compare'}}">
+    <view class="kpi-item blue">
+      <view class="kpi-label">最终定价</view>
+      <view class="kpi-value">{{format.yuan(result.final_price)}}</view>
+    </view>
+    <view class="kpi-item green">
+      <view class="kpi-label">保本价</view>
+      <view class="kpi-value">{{format.yuan(result.break_even_price)}}</view>
+    </view>
+    <view class="kpi-item red">
+      <view class="kpi-label">毛利率</view>
+      <view class="kpi-value">{{format.percent(result.gross_margin_pct)}}</view>
+    </view>
+  </view>
+
+  <!-- Cost breakdown -->
+  <view class="card-title">成本构成</view>
+  <view class="cost-item" wx:for="{{costItems}}" wx:key="name">
+    <text><text class="cost-dot" style="background:{{item.color}}"></text>{{item.name}}</text>
+    <text style="font-weight:600">{{item.value}}</text>
+  </view>
+
+  <!-- Factors -->
+  <view class="card-title">加价原因</view>
+  <view class="factor-item" wx:for="{{result.margin_factors}}" wx:key="factor">
+    <text>{{item.factor}}</text>
+    <text style="font-weight:600;color:#2563eb">{{item.impact}}</text>
+  </view>
+</view>

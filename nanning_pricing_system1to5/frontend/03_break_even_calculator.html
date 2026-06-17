@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>保本价计算器 — 南宁家政</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+
+:root {
+  --primary: #2563eb;
+  --primary-light: #dbeafe;
+  --primary-dark: #1d4ed8;
+  --success: #16a34a;
+  --success-light: #dcfce7;
+  --warning: #f59e0b;
+  --warning-light: #fef3c7;
+  --danger: #dc2626;
+  --danger-light: #fecaca;
+  --gray-50: #f8fafc;
+  --gray-100: #f1f5f9;
+  --gray-200: #e2e8f0;
+  --gray-300: #d1d5db;
+  --gray-400: #94a3b8;
+  --gray-500: #64748b;
+  --gray-700: #334155;
+  --gray-900: #0f172a;
+  --radius: 10px;
+  --shadow: 0 1px 3px rgba(0,0,0,.08);
+}
+
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  background:var(--gray-100);
+  color:var(--gray-900);
+  padding:0;
+  min-height:100vh;
+}
+
+/* Header */
+.header{
+  background:linear-gradient(135deg,#1a365d 0,var(--primary) 100%);
+  color:#fff;
+  padding:20px 16px 16px;
+  position:sticky;
+  top:0;
+  z-index:10;
+}
+.header h1{font-size:20px;font-weight:600;}
+.header .sub{font-size:12px;opacity:.8;margin-top:4px;}
+.header .warning-badge{
+  display:inline-block;
+  background:rgba(220,38,38,.2);
+  color:#fca5a5;
+  font-size:11px;
+  padding:3px 10px;
+  border-radius:12px;
+  margin-top:8px;
+}
+
+/* Container */
+.container{max-width:480px;margin:0 auto;padding:12px 12px 80px;}
+
+/* Card */
+.card{
+  background:#fff;
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  padding:16px;
+  margin-bottom:12px;
+}
+.card h2{
+  font-size:15px;
+  font-weight:600;
+  color:var(--gray-900);
+  margin-bottom:12px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.card h2 .tag{
+  background:var(--primary-light);
+  color:var(--primary);
+  font-size:10px;
+  padding:2px 8px;
+  border-radius:8px;
+  font-weight:500;
+}
+
+/* Form */
+.form-row{display:flex;gap:8px;margin-bottom:10px;}
+.form-group{flex:1;min-width:0;}
+.form-group.full{flex:0 0 100%;}
+.form-group label{
+  display:block;
+  font-size:12px;
+  font-weight:500;
+  color:var(--gray-500);
+  margin-bottom:4px;
+}
+.form-group select,.form-group input{
+  width:100%;
+  padding:10px 12px;
+  border:1px solid var(--gray-300);
+  border-radius:8px;
+  font-size:14px;
+  background:#fff;
+  color:var(--gray-900);
+  appearance:none;
+  -webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:right 10px center;
+  padding-right:30px;
+}
+.form-group select:focus,.form-group input:focus{
+  outline:none;
+  border-color:var(--primary);
+  box-shadow:0 0 0 3px rgba(37,99,235,.15);
+}
+.form-group input[type=number]{background-image:none;padding-right:12px;}
+
+/* Slider */
+.slider-row{display:flex;align-items:center;gap:12px;}
+.slider-row input[type=range]{
+  flex:1;
+  -webkit-appearance:none;
+  height:6px;
+  border-radius:3px;
+  background:linear-gradient(to right, var(--success), var(--warning), var(--danger));
+  outline:none;
+}
+.slider-row input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;
+  width:22px;height:22px;
+  border-radius:50%;
+  background:var(--primary);
+  cursor:pointer;
+  border:3px solid #fff;
+  box-shadow:0 1px 4px rgba(0,0,0,.2);
+}
+.slider-value{
+  font-size:18px;
+  font-weight:700;
+  color:var(--primary);
+  min-width:52px;
+  text-align:center;
+}
+
+/* Output */
+.output-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;}
+.output-card{
+  text-align:center;
+  padding:12px 8px;
+  border-radius:8px;
+}
+.output-card.blue{background:var(--primary-light);}
+.output-card.green{background:var(--success-light);}
+.output-card.red{background:var(--danger-light);}
+.output-card .label{font-size:11px;color:var(--gray-500);margin-bottom:4px;}
+.output-card .value{font-size:20px;font-weight:700;}
+.output-card.blue .value{color:var(--primary);}
+.output-card.green .value{color:var(--success);}
+.output-card.red .value{color:var(--danger);}
+
+/* Cost Breakdown */
+.cost-list{display:flex;flex-direction:column;gap:6px;}
+.cost-item{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:8px 12px;
+  background:var(--gray-50);
+  border-radius:6px;
+  font-size:13px;
+}
+.cost-item .name{color:var(--gray-700);display:flex;align-items:center;gap:6px;}
+.cost-item .amount{font-weight:600;color:var(--gray-900);}
+.cost-item .dot{
+  display:inline-block;
+  width:8px;height:8px;
+  border-radius:50%;
+}
+
+/* Pie chart */
+.chart-box{width:100%;height:220px;}
+
+/* Advanced params */
+.advanced-toggle{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  width:100%;
+  padding:10px 0;
+  background:none;
+  border:none;
+  font-size:14px;
+  font-weight:600;
+  color:var(--gray-700);
+  cursor:pointer;
+}
+.advanced-toggle .arrow{transition:transform .2s;}
+.advanced-toggle .arrow.open{transform:rotate(180deg);}
+.advanced-panel{display:none;padding-top:8px;}
+.advanced-panel.open{display:block;}
+.param-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.param-row label{font-size:12px;color:var(--gray-500);min-width:60px;flex-shrink:0;}
+.param-row input{
+  flex:1;
+  padding:6px 10px;
+  border:1px solid var(--gray-300);
+  border-radius:6px;
+  font-size:13px;
+  width:80px;
+}
+.param-row input:focus{outline:none;border-color:var(--primary);}
+.param-row .unit{font-size:11px;color:var(--gray-400);min-width:40px;}
+.param-row .reset-btn{
+  padding:4px 10px;
+  font-size:11px;
+  border:1px solid var(--gray-300);
+  border-radius:6px;
+  background:#fff;
+  color:var(--gray-500);
+  cursor:pointer;
+}
+
+/* Action buttons */
+.action-bar{
+  display:flex;gap:8px;margin-top:12px;
+}
+.action-bar button{
+  flex:1;
+  padding:12px;
+  border:none;
+  border-radius:8px;
+  font-size:14px;
+  font-weight:600;
+  cursor:pointer;
+  transition:opacity .15s;
+}
+.action-bar button:active{opacity:.8;}
+.btn-copy{background:var(--primary);color:#fff;}
+.btn-export{background:var(--gray-100);color:var(--gray-700);border:1px solid var(--gray-300)!important;}
+
+/* Tooltip */
+.tooltip{font-size:11px;color:var(--gray-400);margin-top:4px;}
+
+/* Responsive */
+@media(min-width:768px){
+  .container{max-width:600px;padding:16px 16px 80px;}
+  .form-row{gap:12px;}
+  .output-grid{gap:12px;}
+  .output-card .value{font-size:24px;}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>保本价计算器</h1>
+  <div class="sub">南宁家政服务 · 四级成本分摊模型 | 手机端专用</div>
+  <div class="warning-badge">⚠ 保本价为绝对硬下限</div>
+</div>
+
+<div class="container">
+
+  <!-- ===== 输入面板 ===== -->
+  <div class="card">
+    <h2><span>📋</span> 服务信息</h2>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>服务类型</label>
+        <select id="serviceType">
+          <option value="日常保洁">日常保洁</option>
+          <option value="深度清洁">深度清洁</option>
+          <option value="开荒保洁">开荒保洁</option>
+          <option value="家电清洗">家电清洗</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>师傅等级</label>
+        <select id="skillLevel">
+          <option value="新手">新手</option>
+          <option value="熟练" selected>熟练</option>
+          <option value="金牌">金牌</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>城区</label>
+        <select id="district">
+          <option value="青秀">青秀</option>
+          <option value="良庆">良庆</option>
+          <option value="江南">江南</option>
+          <option value="西乡塘">西乡塘</option>
+          <option value="兴宁">兴宁</option>
+          <option value="邕宁">邕宁</option>
+          <option value="武鸣">武鸣</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>时间段</label>
+        <select id="timePeriod">
+          <option value="工作日">工作日</option>
+          <option value="周末">周末</option>
+          <option value="节假日">节假日</option>
+          <option value="旺季">旺季</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>服务时长（小时）</label>
+        <input type="number" id="duration" value="3" min="0.5" max="24" step="0.5">
+      </div>
+      <div class="form-group">
+        <label>户型</label>
+        <select id="apartmentType">
+          <option value="1室">1室</option>
+          <option value="2室">2室</option>
+          <option value="3室" selected>3室</option>
+          <option value="4室+">4室+</option>
+          <option value="别墅">别墅</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group full">
+        <label>目标毛利率</label>
+        <div class="slider-row">
+          <input type="range" id="targetMargin" min="0" max="45" value="30">
+          <span class="slider-value" id="marginDisplay">30%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 输出面板 ===== -->
+  <div class="card">
+    <h2><span>💰</span> 计算结果 <span class="tag">实时更新</span></h2>
+
+    <div class="output-grid">
+      <div class="output-card blue">
+        <div class="label">总成本</div>
+        <div class="value" id="totalCost">--</div>
+      </div>
+      <div class="output-card green">
+        <div class="label">保本价</div>
+        <div class="value" id="breakEven">--</div>
+      </div>
+      <div class="output-card red">
+        <div class="label">目标售价</div>
+        <div class="value" id="targetPrice">--</div>
+      </div>
+    </div>
+
+    <h2 style="font-size:14px;margin-top:4px;">成本构成</h2>
+    <div class="cost-list" id="costBreakdown">
+      <div class="cost-item"><span class="name"><span class="dot" style="background:#2563eb"></span>人力成本</span><span class="amount" id="laborCost">--</span></div>
+      <div class="cost-item"><span class="name"><span class="dot" style="background:#16a34a"></span>耗材成本</span><span class="amount" id="materialCost">--</span></div>
+      <div class="cost-item"><span class="name"><span class="dot" style="background:#f59e0b"></span>交通成本</span><span class="amount" id="transportCost">--</span></div>
+      <div class="cost-item"><span class="name"><span class="dot" style="background:#8b5cf6"></span>管理成本</span><span class="amount" id="managementCost">--</span></div>
+      <div class="cost-item"><span class="name"><span class="dot" style="background:#ef4444"></span>风险裕量</span><span class="amount" id="riskBuffer">--</span></div>
+    </div>
+    <div class="tooltip" id="marginDetail"></div>
+  </div>
+
+  <!-- ===== 饼图 ===== -->
+  <div class="card">
+    <h2><span>📊</span> 成本占比</h2>
+    <div class="chart-box" id="pieChart"></div>
+  </div>
+
+  <!-- ===== 操作按钮 ===== -->
+  <div class="card">
+    <div class="action-bar">
+      <button class="btn-copy" onclick="copyDetails()">📋 复制价格明细</button>
+      <button class="btn-export" onclick="exportCSV()">📥 导出CSV</button>
+    </div>
+  </div>
+
+  <!-- ===== 高级参数调整 ===== -->
+  <div class="card">
+    <button class="advanced-toggle" onclick="toggleAdvanced()">
+      <span>⚙️ 调整成本参数</span>
+      <span class="arrow" id="advancedArrow">▼</span>
+    </button>
+    <div class="advanced-panel" id="advancedPanel">
+      <div class="param-row">
+        <label>新手时薪</label>
+        <input type="number" id="p_wage_novice" value="20" step="1" onchange="recalc()">
+        <span class="unit">元/h</span>
+        <button class="reset-btn" onclick="resetParam('wage_novice')">重置</button>
+      </div>
+      <div class="param-row">
+        <label>熟练时薪</label>
+        <input type="number" id="p_wage_skilled" value="28" step="1" onchange="recalc()">
+        <span class="unit">元/h</span>
+        <button class="reset-btn" onclick="resetParam('wage_skilled')">重置</button>
+      </div>
+      <div class="param-row">
+        <label>金牌时薪</label>
+        <input type="number" id="p_wage_gold" value="38" step="1" onchange="recalc()">
+        <span class="unit">元/h</span>
+        <button class="reset-btn" onclick="resetParam('wage_gold')">重置</button>
+      </div>
+      <div class="param-row">
+        <label>社保系数</label>
+        <input type="number" id="p_social_insurance" value="1.20" step="0.01" onchange="recalc()">
+        <span class="unit">×</span>
+        <button class="reset-btn" onclick="resetParam('social_insurance')">重置</button>
+      </div>
+      <div class="param-row">
+        <label>管理费率</label>
+        <input type="number" id="p_management_rate" value="0.06" step="0.005" onchange="recalc()">
+        <span class="unit">%</span>
+        <button class="reset-btn" onclick="resetParam('management_rate')">重置</button>
+      </div>
+      <div class="param-row">
+        <label>风险裕量</label>
+        <input type="number" id="p_risk_rate" value="0.10" step="0.005" onchange="recalc()">
+        <span class="unit">%</span>
+        <button class="reset-btn" onclick="resetParam('risk_rate')">重置</button>
+      </div>
+      <div class="tooltip" style="margin-top:8px">修改参数后自动重新计算所有价格</div>
+      <div style="margin-top:10px;text-align:center">
+        <button class="reset-btn" onclick="resetAllParams()" style="padding:6px 20px;font-size:13px;">重置所有参数为默认值</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ============================================================
+// 成本参数（默认值，与 cost_parameters.csv 一致）
+// ============================================================
+const DEFAULT_PARAMS = {
+  wage: { novice: 20, skilled: 28, gold: 38 },
+  social_insurance: 1.20,
+  material: { "日常保洁": 5, "深度清洁": 12, "开荒保洁": 3, "家电清洗": 15 },
+  transport: { "青秀": 5, "良庆": 8, "江南": 10, "西乡塘": 8, "兴宁": 12, "邕宁": 18, "武鸣": 25 },
+  management_rate: 0.06,
+  risk_rate: 0.10,
+  apartment_coeff: { "1室": 0.6, "2室": 0.8, "3室": 1.0, "4室+": 1.3, "别墅": 1.8 },
+  productivity: { "新手": 18, "熟练": 15, "金牌": 12 },
+  hours_per_appliance: 1.5,
+};
+
+// 时间段系数（与 cost_parameters.csv 一致）
+const TIME_MULTIPLIERS = { "工作日": 1.0, "周末": 1.1, "节假日": 1.2, "旺季": 1.3 };
+
+// 当前参数（可修改）— 优先从 localStorage 恢复
+let P = loadParams();
+
+// ============================================================
+// 成本计算函数（与 Python 版完全一致）
+// ============================================================
+
+function getWage(skill) {
+  const map = { "新手": P.wage.novice, "熟练": P.wage.skilled, "金牌": P.wage.gold };
+  return map[skill] || P.wage.skilled;
+}
+
+function calculate() {
+  const st = document.getElementById("serviceType").value;
+  const sl = document.getElementById("skillLevel").value;
+  const dist = document.getElementById("district").value;
+  const dur = parseFloat(document.getElementById("duration").value) || 0;
+  const apt = document.getElementById("apartmentType").value;
+  const margin = parseInt(document.getElementById("targetMargin").value) / 100;
+
+  if (dur <= 0) {
+    return { error: "请输入有效的服务时长" };
+  }
+
+  // 1. 人力成本（受时间段影响）
+  const wage = getWage(sl);
+  const tp = document.getElementById("timePeriod").value;
+  const timeMult = TIME_MULTIPLIERS[tp] || 1.0;
+  const laborCost = wage * P.social_insurance * dur * timeMult;
+
+  // 2. 耗材成本
+  const baseMat = P.material[st] || 0;
+  const aptCoeff = P.apartment_coeff[apt] || 1.0;
+  let materialCost = 0;
+  let extraDetail = "";
+
+  if (st === "开荒保洁") {
+    const prod = P.productivity[sl] || 15;
+    const area = dur * prod;
+    materialCost = baseMat * area;
+    extraDetail = `面积 ${area.toFixed(0)}㎡`;
+  } else if (st === "家电清洗") {
+    const units = Math.max(1, Math.round(dur / P.hours_per_appliance));
+    materialCost = baseMat * units;
+    extraDetail = `约 ${units} 台`;
+  } else {
+    materialCost = baseMat * aptCoeff;
+  }
+
+  // 3. 交通成本
+  const transportCost = P.transport[dist] || 0;
+
+  // 直接成本小计
+  const totalDirect = laborCost + materialCost + transportCost;
+
+  // 4. 风险裕量
+  const riskRate = P.risk_rate;
+  const riskBuffer = totalDirect * riskRate;
+
+  // 5. 管理成本（有循环依赖，需解算）
+  const mgmtRate = P.management_rate;
+  const baseBeforeMgmt = totalDirect + riskBuffer;
+  const breakEven = baseBeforeMgmt / (1 - mgmtRate);
+  const managementCost = breakEven * mgmtRate;
+
+  // 总成本 = 保本价
+  const totalCost = breakEven;
+
+  // 目标售价
+  const targetPrice = totalCost / (1 - margin);
+
+  return {
+    laborCost,
+    materialCost,
+    transportCost,
+    managementCost,
+    riskBuffer,
+    totalCost,
+    breakEven,
+    targetPrice,
+    margin,
+    extraDetail,
+    serviceType: st,
+    skillLevel: sl,
+    district: dist,
+    duration: dur,
+    apartmentType: apt,
+    timePeriod: tp,
+  };
+}
+
+// ============================================================
+// 渲染
+// ============================================================
+
+let pieChartInstance = null;
+
+function recalc() {
+  const result = calculate();
+
+  if (result.error) {
+    document.getElementById("totalCost").textContent = "--";
+    document.getElementById("breakEven").textContent = "--";
+    document.getElementById("targetPrice").textContent = "--";
+    document.getElementById("laborCost").textContent = "--";
+    document.getElementById("materialCost").textContent = "--";
+    document.getElementById("transportCost").textContent = "--";
+    document.getElementById("managementCost").textContent = "--";
+    document.getElementById("riskBuffer").textContent = "--";
+    document.getElementById("marginDetail").textContent = result.error;
+    return;
+  }
+
+  // 更新输出
+  document.getElementById("totalCost").textContent = "¥" + result.totalCost.toFixed(0);
+  document.getElementById("breakEven").textContent = "¥" + result.breakEven.toFixed(0);
+  document.getElementById("targetPrice").textContent = "¥" + result.targetPrice.toFixed(0);
+
+  document.getElementById("laborCost").textContent = "¥" + result.laborCost.toFixed(1);
+  document.getElementById("materialCost").textContent = "¥" + result.materialCost.toFixed(1) + (result.extraDetail ? " " + result.extraDetail : "");
+  document.getElementById("transportCost").textContent = "¥" + result.transportCost.toFixed(1);
+  document.getElementById("managementCost").textContent = "¥" + result.managementCost.toFixed(1);
+  document.getElementById("riskBuffer").textContent = "¥" + result.riskBuffer.toFixed(1);
+
+  const marginPct = ((result.targetPrice - result.totalCost) / result.targetPrice * 100).toFixed(1);
+  document.getElementById("marginDetail").textContent =
+    `目标毛利率 ${result.margin*100}% | 实际毛利率约 ${marginPct}%`;
+
+  // 更新饼图
+  renderPieChart(result);
+}
+
+function renderPieChart(result) {
+  const dom = document.getElementById("pieChart");
+  if (!pieChartInstance) {
+    pieChartInstance = echarts.init(dom);
+  }
+
+  const data = [
+    { name: "人力成本", value: Math.round(result.laborCost * 100) / 100 },
+    { name: "耗材成本", value: Math.round(result.materialCost * 100) / 100 },
+    { name: "交通成本", value: Math.round(result.transportCost * 100) / 100 },
+    { name: "管理成本", value: Math.round(result.managementCost * 100) / 100 },
+    { name: "风险裕量", value: Math.round(result.riskBuffer * 100) / 100 },
+  ];
+
+  // 过滤掉 0 值
+  const filtered = data.filter(d => d.value > 0);
+
+  pieChartInstance.setOption({
+    tooltip: {
+      trigger: "item",
+      formatter: function(p) { return p.name + ": ¥" + p.value.toFixed(1) + " (" + p.percent + "%)"; }
+    },
+    color: ["#2563eb", "#16a34a", "#f59e0b", "#8b5cf6", "#ef4444"],
+    series: [{
+      type: "pie",
+      radius: ["35%", "65%"],
+      center: ["50%", "50%"],
+      data: filtered,
+      label: {
+        fontSize: 11,
+        formatter: function(p) { return p.name + "\n" + p.percent + "%"; }
+      },
+      emphasis: {
+        itemStyle: { shadowBlur: 10, shadowColor: "rgba(0,0,0,.2)" }
+      }
+    }]
+  }, true);
+
+  window.addEventListener("resize", function() { pieChartInstance.resize(); });
+}
+
+// ============================================================
+// 一键复制
+// ============================================================
+
+function copyDetails() {
+  const result = calculate();
+  if (result.error) { alert(result.error); return; }
+
+  const marginPct = ((result.targetPrice - result.totalCost) / result.targetPrice * 100).toFixed(1);
+  const lines = [
+    "=== 南宁家政 · 保本价计算明细 ===",
+    "",
+    "【服务信息】",
+    "  服务类型: " + result.serviceType,
+    "  师傅等级: " + result.skillLevel,
+    "  城区: " + result.district,
+    "  服务时长: " + result.duration + "小时",
+    "  户型: " + result.apartmentType,
+    "  时间段: " + result.timePeriod,
+    "",
+    "【成本构成】",
+    "  人力成本: ¥" + result.laborCost.toFixed(1),
+    "  耗材成本: ¥" + result.materialCost.toFixed(1),
+    "  交通成本: ¥" + result.transportCost.toFixed(1),
+    "  管理成本: ¥" + result.managementCost.toFixed(1),
+    "  风险裕量: ¥" + result.riskBuffer.toFixed(1),
+    "  ─────────────────",
+    "  总成本: ¥" + result.totalCost.toFixed(1),
+    "",
+    "【定价建议】",
+    "  保本价: ¥" + result.breakEven.toFixed(0) + "（绝对下限）",
+    "  目标毛利率: " + (result.margin * 100) + "%",
+    "  目标售价: ¥" + result.targetPrice.toFixed(0),
+    "  预期毛利率: " + marginPct + "%",
+    "",
+    "⚠ 保本价为绝对硬下限，任何情况下不得低于",
+    "📅 " + new Date().toLocaleDateString("zh-CN"),
+  ];
+
+  const text = lines.join("\n");
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(function() {
+      showToast("已复制到剪贴板");
+    }).catch(function() {
+      fallbackCopy(text);
+    });
+  } else {
+    fallbackCopy(text);
+  }
+}
+
+function fallbackCopy(text) {
+  const ta = document.createElement("textarea");
+  ta.value = text;
+  ta.style.position = "fixed";
+  ta.style.opacity = "0";
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand("copy"); showToast("已复制到剪贴板"); } catch(e) { alert("复制失败，请手动复制"); }
+  document.body.removeChild(ta);
+}
+
+// ============================================================
+// 导出 CSV
+// ============================================================
+
+function exportCSV() {
+  const result = calculate();
+  if (result.error) { alert(result.error); return; }
+
+  const headers = "项目,金额(元)\n";
+  const rows = [
+    ["服务类型", result.serviceType],
+    ["师傅等级", result.skillLevel],
+    ["城区", result.district],
+    ["服务时长(h)", result.duration],
+    ["户型", result.apartmentType],
+    ["人力成本", result.laborCost.toFixed(1)],
+    ["耗材成本", result.materialCost.toFixed(1)],
+    ["交通成本", result.transportCost.toFixed(1)],
+    ["管理成本", result.managementCost.toFixed(1)],
+    ["风险裕量", result.riskBuffer.toFixed(1)],
+    ["总成本", result.totalCost.toFixed(1)],
+    ["保本价", result.breakEven.toFixed(0)],
+    ["目标售价(" + (result.margin*100) + "%毛利)", result.targetPrice.toFixed(0)],
+  ].map(r => r.join(",")).join("\n");
+
+  const csv = "﻿" + headers + rows;
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "南宁家政_保本价_" + result.serviceType + "_" + result.district + ".csv";
+  a.click();
+  URL.revokeObjectURL(a.href);
+  showToast("CSV 已下载");
+}
+
+// ============================================================
+// Toast 提示
+// ============================================================
+
+function showToast(msg) {
+  const existing = document.querySelector(".toast-msg");
+  if (existing) existing.remove();
+
+  const div = document.createElement("div");
+  div.className = "toast-msg";
+  div.textContent = msg;
+  div.style.cssText =
+    "position:fixed;bottom:80px;left:50%;transform:translateX(-50%);" +
+    "background:#1e293b;color:#fff;padding:10px 20px;border-radius:8px;" +
+    "font-size:14px;z-index:999;animation:fadeInOut 2s ease;";
+  document.body.appendChild(div);
+  setTimeout(function() { div.remove(); }, 2000);
+}
+
+// ============================================================
+// 高级参数面板
+// ============================================================
+
+function toggleAdvanced() {
+  const panel = document.getElementById("advancedPanel");
+  const arrow = document.getElementById("advancedArrow");
+  panel.classList.toggle("open");
+  arrow.classList.toggle("open");
+}
+
+function resetParam(name) {
+  const map = {
+    "wage_novice": ["p_wage_novice", 20],
+    "wage_skilled": ["p_wage_skilled", 28],
+    "wage_gold": ["p_wage_gold", 38],
+    "social_insurance": ["p_social_insurance", 1.20],
+    "management_rate": ["p_management_rate", 0.06],
+    "risk_rate": ["p_risk_rate", 0.10],
+  };
+  const [id, val] = map[name] || [];
+  if (id) {
+    document.getElementById(id).value = val;
+    syncParams();
+    recalc();
+  }
+}
+
+function syncParams() {
+  P.wage.novice = parseFloat(document.getElementById("p_wage_novice").value) || 20;
+  P.wage.skilled = parseFloat(document.getElementById("p_wage_skilled").value) || 28;
+  P.wage.gold = parseFloat(document.getElementById("p_wage_gold").value) || 38;
+  P.social_insurance = parseFloat(document.getElementById("p_social_insurance").value) || 1.20;
+  P.management_rate = parseFloat(document.getElementById("p_management_rate").value) || 0.06;
+  P.risk_rate = parseFloat(document.getElementById("p_risk_rate").value) || 0.10;
+  saveParams();
+}
+
+// ============================================================
+// localStorage 持久化
+// ============================================================
+
+function loadParams() {
+  try {
+    const saved = localStorage.getItem("break_even_params");
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      // 合并到默认值上（防止新增字段缺失）
+      return { ...JSON.parse(JSON.stringify(DEFAULT_PARAMS)), ...parsed };
+    }
+  } catch (e) { /* ignore */ }
+  return JSON.parse(JSON.stringify(DEFAULT_PARAMS));
+}
+
+function saveParams() {
+  try {
+    localStorage.setItem("break_even_params", JSON.stringify(P));
+  } catch (e) { /* ignore */ }
+}
+
+function resetAllParams() {
+  try { localStorage.removeItem("break_even_params"); } catch (e) { /* ignore */ }
+  P = JSON.parse(JSON.stringify(DEFAULT_PARAMS));
+  // 同步到输入框
+  document.getElementById("p_wage_novice").value = P.wage.novice;
+  document.getElementById("p_wage_skilled").value = P.wage.skilled;
+  document.getElementById("p_wage_gold").value = P.wage.gold;
+  document.getElementById("p_social_insurance").value = P.social_insurance;
+  document.getElementById("p_management_rate").value = P.management_rate;
+  document.getElementById("p_risk_rate").value = P.risk_rate;
+  recalc();
+  showToast("参数已重置为默认值");
+}
+
+// 同步参数并重算
+document.querySelectorAll(".advanced-panel input").forEach(function(el) {
+  el.addEventListener("change", function() {
+    syncParams();
+    recalc();
+  });
+  el.addEventListener("input", function() {
+    syncParams();
+    recalc();
+  });
+});
+
+// ============================================================
+// 事件绑定
+// ============================================================
+
+document.getElementById("serviceType").addEventListener("change", recalc);
+document.getElementById("skillLevel").addEventListener("change", recalc);
+document.getElementById("district").addEventListener("change", recalc);
+document.getElementById("duration").addEventListener("input", recalc);
+document.getElementById("apartmentType").addEventListener("change", recalc);
+document.getElementById("timePeriod").addEventListener("change", recalc);
+document.getElementById("targetMargin").addEventListener("input", function() {
+  document.getElementById("marginDisplay").textContent = this.value + "%";
+  recalc();
+});
+
+// ============================================================
+// 初始化
+// ============================================================
+window.addEventListener("DOMContentLoaded", function() {
+  // 将 localStorage 恢复的参数同步到输入框
+  document.getElementById("p_wage_novice").value = P.wage.novice;
+  document.getElementById("p_wage_skilled").value = P.wage.skilled;
+  document.getElementById("p_wage_gold").value = P.wage.gold;
+  document.getElementById("p_social_insurance").value = P.social_insurance;
+  document.getElementById("p_management_rate").value = P.management_rate;
+  document.getElementById("p_risk_rate").value = P.risk_rate;
+  recalc();
+});
+
+// 添加 CSS 动画
+const style = document.createElement("style");
+style.textContent = `
+  @keyframes fadeInOut {
+    0% { opacity: 0; transform: translateX(-50%) translateY(10px); }
+    15% { opacity: 1; transform: translateX(-50%) translateY(0); }
+    85% { opacity: 1; transform: translateX(-50%) translateY(0); }
+    100% { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+  }
+`;
+document.head.appendChild(style);
+</script>
+</body>
+</html>

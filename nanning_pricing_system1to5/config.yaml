@@ -1,0 +1,107 @@
+# 南宁家政动态定价系统 — 全局配置文件
+# 版本: 1.0 | 更新: 2026-05-21
+
+# === 区域配置 ===
+districts:
+  - name: 青秀
+    price_per_sqm: 16189
+    tier: 高端
+    premium: 1.15  # +15%
+  - name: 良庆
+    price_per_sqm: 12189
+    tier: 中高端
+    premium: 1.10  # +10%
+  - name: 江南
+    price_per_sqm: 10404
+    tier: 中端
+    premium: 1.00
+  - name: 西乡塘
+    price_per_sqm: 9952
+    tier: 中端
+    premium: 1.00
+  - name: 兴宁
+    price_per_sqm: 9572
+    tier: 中端
+    premium: 1.00
+  - name: 邕宁
+    price_per_sqm: 6500
+    tier: 中低端
+    premium: 1.10  # +10%（含距离加价）
+  - name: 武鸣
+    price_per_sqm: 5500
+    tier: 低端
+    premium: 1.25  # +25%（距离加价）
+
+# === 服务类型与基准成本 ===
+service_types:
+  - name: 日常保洁
+    unit: 元/小时
+    rates: {novice: 35, skilled: 40, gold: 45}
+    min_hours: 3
+  - name: 深度清洁
+    unit: 元/小时
+    rates: {novice: 45, skilled: 55, gold: 65}
+    min_hours: 3
+  - name: 开荒保洁
+    unit: 元/㎡
+    rates: {novice: 6, skilled: 8, gold: 10}
+    min_hours: null
+  - name: 家电清洗
+    unit: 元/台
+    rates: {novice: 80, skilled: 100, gold: 130}
+    min_hours: null
+
+# === 成本结构 ===
+cost_structure:
+  labor_pct: 0.68
+  social_insurance_pct: 0.18
+  materials_pct: 0.08
+  management_pct: 0.06
+
+# === 淡旺季系数 ===
+season_multipliers:
+  super_peak:
+    - name: 春节前1个月
+      multiplier: 4.0  # +300%
+    - name: 三月三
+      multiplier: 3.0  # +200%
+    - name: 回南天
+      multiplier: 2.5  # +150%
+      condition: 深度清洁专用
+  normal_peak:
+    - name: 寒暑假
+      multiplier: 1.5  # +50%
+    - name: 周末
+      multiplier: 1.3  # +30%
+
+# === 供需比 ===
+supply_demand:
+  high_demand_districts: [青秀, 良庆]
+  high_demand_ratio: 1.5
+  spring_festival_ratio: 3.0
+  normal_ratio: 1.1
+
+# === 爬虫配置 ===
+scraper:
+  delay_seconds: 3
+  max_pages: 5
+  user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+  targets:
+    - name: 美团家政南宁站
+      base_url: "https://nn.meituan.com/jz/"
+    - name: 天鹅到家南宁站
+      base_url: "https://nn.tianedaojia.com/"
+    - name: 58到家南宁站
+      base_url: "https://nn.58.com/jz/"
+    - name: 喜事连连
+      base_url: ""
+    - name: 壮家女
+      base_url: ""
+
+# === 清洗规则 ===
+cleaning:
+  min_duration_hours: 0.5
+  max_duration_hours: 24
+  outlier_price_ratio: 2.0  # 超过竞品均价2倍标记为异常
+  date_format: "YYYY-MM-DD HH:mm"
+  area_format: "南宁-{district}-{community}"

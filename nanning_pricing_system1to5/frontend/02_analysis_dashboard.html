@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>南宁家政市场统计建模分析看板 | Phase 2</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:#f0f2f5;color:#333;padding:20px}
+.header{background:linear-gradient(135deg,#1a365d 0,#2563eb 100%);color:#fff;padding:28px 32px;border-radius:12px;margin-bottom:20px}
+.header h1{font-size:24px;font-weight:600;margin-bottom:6px}
+.header .sub{font-size:13px;opacity:.8;margin-bottom:16px}
+.stats-row{display:flex;gap:16px;flex-wrap:wrap}
+.stat-item{background:rgba(255,255,255,.12);padding:12px 20px;border-radius:8px;text-align:center;min-width:120px;cursor:default;transition:background .2s}
+.stat-item:hover{background:rgba(255,255,255,.2)}
+.stat-num{font-size:24px;font-weight:700;line-height:1.2}
+.stat-label{font-size:12px;opacity:.8;margin-top:2px}
+.stat-delta{font-size:11px;opacity:.7;margin-top:2px}
+.filter-bar{display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+.filter-bar label{font-size:13px;font-weight:600;color:#1a365d}
+.filter-bar select{padding:6px 14px;border:1px solid #d1d5db;border-radius:6px;font-size:13px;background:#fff;cursor:pointer;min-width:110px}
+.filter-bar select:focus{outline:none;border-color:#2563eb;box-shadow:0 0 0 2px rgba(37,99,235,.15)}
+.filter-bar button{padding:6px 16px;border:1px solid #d1d5db;border-radius:6px;font-size:13px;background:#fff;cursor:pointer}
+.filter-bar button.reset-btn{background:#2563eb;color:#fff;border:none}
+.filter-bar button.reset-btn:hover{background:#1d4ed8}
+.filter-info{font-size:12px;color:#6b7280;margin-left:auto}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.grid .full{grid-column:1/-1}
+.card{background:#fff;border-radius:10px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.card h2{font-size:16px;font-weight:600;color:#1a365d;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.card h2 .tag{background:#2563eb;color:#fff;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:400}
+.card h2 .tag-warn{background:#f59e0b;color:#fff;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:400}
+.chart-box{width:100%;height:380px}
+.chart-box-tall{width:100%;height:480px}
+.table-wrap{max-height:420px;overflow-y:auto;border:1px solid #e2e8f0;border-radius:6px}
+.data-table{width:100%;border-collapse:collapse;font-size:12px}
+.data-table th{background:#f8fafc;padding:8px 10px;text-align:left;font-weight:600;border-bottom:2px solid #e2e8f0;position:sticky;top:0;z-index:1}
+.data-table td{padding:6px 10px;border-bottom:1px solid #f1f5f9}
+.data-table tr:hover{background:#f8fafc}
+.data-table tr.row-warn{background:#fef3c7}
+.data-table tr.row-danger{background:#fecaca}
+.data-table .sortable{cursor:pointer;user-select:none}
+.data-table .sortable:hover{background:#e2e8f0}
+.data-table .sortable::after{content:' ↕';opacity:.4}
+.data-table .sortable.asc::after{content:' ↑';opacity:1}
+.data-table .sortable.desc::after{content:' ↓';opacity:1}
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:500}
+.badge-green{background:#dcfce7;color:#166534}
+.badge-orange{background:#fed7aa;color:#9a3412}
+.badge-red{background:#fecaca;color:#991b1b}
+.badge-blue{background:#dbeafe;color:#1e40af}
+.footer{text-align:center;padding:20px;color:#94a3b8;font-size:12px}
+@media(max-width:768px){.grid{grid-template-columns:1fr}.stats-row{gap:8px}.stat-item{min-width:90px;padding:8px 12px}.stat-num{font-size:18px}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>南宁家政市场统计建模分析看板</h1>
+  <div class="sub" id="headerSub">加载中...</div>
+  <div class="stats-row" id="statsRow">
+    <div class="stat-item"><div class="stat-num" id="kpiOrders">--</div><div class="stat-label">总订单数</div></div>
+    <div class="stat-item"><div class="stat-num" id="kpiPrice">--</div><div class="stat-label">平均客单价(元)</div></div>
+    <div class="stat-item"><div class="stat-num" id="kpiMargin">--</div><div class="stat-label">平均毛利率(%)</div></div>
+    <div class="stat-item"><div class="stat-num" id="kpiLoss">--</div><div class="stat-label">低利润订单占比</div><div class="stat-delta" id="kpiLossDelta"></div></div>
+    <div class="stat-item"><div class="stat-num" id="kpiRevenue">--</div><div class="stat-label">总收入(万元)</div></div>
+    <div class="stat-item"><div class="stat-num" id="kpiProfit">--</div><div class="stat-label">总利润(万元)</div></div>
+  </div>
+</div>
+
+<div class="filter-bar">
+  <label>城区:</label>
+  <select id="distFilter"><option value="全部">全部城区</option></select>
+  <label>服务类型:</label>
+  <select id="svcFilter"><option value="全部">全部服务</option></select>
+  <label>月份:</label>
+  <select id="monthFilter"><option value="全部">全部月份</option></select>
+  <label>旺季:</label>
+  <select id="seasonFilter"><option value="全部">全部等级</option></select>
+  <button class="reset-btn" onclick="resetFilters()">重置筛选</button>
+  <span class="filter-info" id="filterInfo"></span>
+</div>
+
+<div class="grid">
+  <div class="card full">
+    <h2>价格影响因子分析 <span class="tag">Spearman + ANOVA</span></h2>
+    <div class="chart-box-tall" id="chartInfluence"></div>
+  </div>
+</div>
+
+<div class="grid">
+  <div class="card">
+    <h2>南宁各城区供需热力图 <span class="tag">供需比</span></h2>
+    <div style="margin-bottom:8px" id="sdYearSelector">
+      <label style="font-size:13px;font-weight:600;color:#1a365d;margin-right:8px">年份:</label>
+    </div>
+    <div class="chart-box" id="chartSDHeatmap"></div>
+  </div>
+  <div class="card">
+    <h2>淡旺季价格与订单量趋势 <span class="tag-warn">标注三月三/回南天</span></h2>
+    <div class="chart-box" id="chartSeasonal"></div>
+  </div>
+</div>
+
+<div class="grid">
+  <div class="card">
+    <h2>各城区利润率与亏损分布</h2>
+    <div class="chart-box" id="chartLossDist"></div>
+  </div>
+  <div class="card">
+    <h2>服务类型 × 技能等级 利润率对比</h2>
+    <div class="chart-box" id="chartServiceSkill"></div>
+  </div>
+</div>
+
+<div class="grid">
+  <div class="card full">
+    <h2>低利润 / 亏损边缘订单明细 <span class="tag-warn">利润率<10%</span></h2>
+    <div class="table-wrap" id="lossTableWrap">
+      <table class="data-table" id="lossTable">
+        <thead><tr>
+          <th>订单ID</th><th>城区</th><th>小区</th><th>服务类型</th><th>服务等级</th>
+          <th>订单金额(元)</th><th>标准成本(元)</th><th>毛利润(元)</th>
+          <th class="sortable" onclick="sortTable('毛利率')">毛利率(%)</th>
+          <th>月份</th><th>旺季</th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  Nanning Housekeeping Pricing System — Phase 2 Statistical Analysis Dashboard | Powered by ECharts 5.4.3 | Generated 2026-05-21
+</div>
+
+<script src="../output/analysis_data.js"></script>
+<script>
+// ============================================================
+// Data reference (loaded from analysis_data.js)
+// ============================================================
+const D = ANALYSIS_DATA;
+
+// ============================================================
+// Init
+// ============================================================
+function init() {
+  // Update header info dynamically
+  const orders = D.orders_detail || [];
+  const len = orders.length;
+  const minDate = len ? orders.reduce((a,b)=>a<b.下单时间?a:b.下单时间) : '--';
+  const maxDate = len ? orders.reduce((a,b)=>a>b.下单时间?a:b.下单时间) : '--';
+  document.getElementById('headerSub').textContent =
+    `Nanning Housekeeping Market Statistical Analysis | 数据周期 ${minDate} ~ ${maxDate} | ${len}条订单`;
+
+  populateFilters();
+  updateKPIs(D);
+  renderInfluenceHeatmap(D);
+  renderSDHeatmap(D);
+  renderSeasonalTrend(D);
+  renderLossDistribution(D);
+  renderServiceSkill(D);
+  renderLossTable(D.orders_detail);
+  updateFilterInfo();
+}
+
+// ============================================================
+// Filters
+// ============================================================
+function populateFilters() {
+  const dists = [...new Set(D.orders_detail.map(r=>r.城区))].sort();
+  const svcs = [...new Set(D.orders_detail.map(r=>r.服务类型))].sort();
+  const months = [...new Set(D.orders_detail.map(r=>r.月份标签))].sort();
+  const seasons = [...new Set(D.orders_detail.map(r=>r.旺季等级))].sort();
+
+  ['distFilter','svcFilter','monthFilter','seasonFilter'].forEach(id => {
+    const sel = document.getElementById(id);
+    sel.querySelectorAll('option:not(:first-child)').forEach(o=>o.remove());
+  });
+
+  dists.forEach(v => { const o=document.createElement('option'); o.value=v; o.textContent=v; distFilter.appendChild(o); });
+  svcs.forEach(v => { const o=document.createElement('option'); o.value=v; o.textContent=v; svcFilter.appendChild(o); });
+  months.forEach(v => { const o=document.createElement('option'); o.value=v; o.textContent=v; monthFilter.appendChild(o); });
+  seasons.forEach(v => { const o=document.createElement('option'); o.value=v; o.textContent=v; seasonFilter.appendChild(o); });
+}
+
+function getFilteredData() {
+  let rows = D.orders_detail;
+  const dist = distFilter.value;
+  const svc = svcFilter.value;
+  const month = monthFilter.value;
+  const season = seasonFilter.value;
+  if (dist !== '全部') rows = rows.filter(r => r.城区 === dist);
+  if (svc !== '全部') rows = rows.filter(r => r.服务类型 === svc);
+  if (month !== '全部') rows = rows.filter(r => r.月份标签 === month);
+  if (season !== '全部') rows = rows.filter(r => r.旺季等级 === season);
+  return rows;
+}
+
+function onFilterChange() {
+  const rows = getFilteredData();
+  const agg = computeAggregates(rows);
+  updateKPIsFromRows(agg);
+  renderLossDistributionFromRows(rows, agg);
+  renderServiceSkillFromRows(rows);
+  renderLossTable(rows);
+  updateFilterInfo();
+}
+
+function computeAggregates(rows) {
+  if (!rows.length) return { n:0, avgPrice:0, avgMargin:0, lowMarginRate:0, totalRevenue:0, totalProfit:0 };
+  const n = rows.length;
+  const totalRev = rows.reduce((s,r)=>s+r.订单金额,0);
+  const totalProfit = rows.reduce((s,r)=>s+r.毛利润,0);
+  const avgPrice = totalRev / n;
+  const avgMargin = rows.reduce((s,r)=>s+r.毛利率,0) / n;
+  const lowMarginN = rows.filter(r => r.毛利率 < 10).length;
+  return { n, avgPrice, avgMargin, lowMarginRate: lowMarginN/n*100, totalRevenue:totalRev, totalProfit };
+}
+
+function updateKPIsFromRows(agg) {
+  document.getElementById('kpiOrders').textContent = agg.n;
+  document.getElementById('kpiPrice').textContent = agg.avgPrice.toFixed(0);
+  document.getElementById('kpiMargin').textContent = agg.avgMargin.toFixed(1) + '%';
+  document.getElementById('kpiLoss').textContent = agg.lowMarginRate.toFixed(1) + '%';
+  document.getElementById('kpiRevenue').textContent = (agg.totalRevenue/10000).toFixed(2);
+  document.getElementById('kpiProfit').textContent = (agg.totalProfit/10000).toFixed(2);
+  document.getElementById('kpiLossDelta').textContent = '利润率<10%';
+}
+
+function updateKPIs(data) {
+  document.getElementById('kpiOrders').textContent = data.kpi.total_orders;
+  document.getElementById('kpiPrice').textContent = data.kpi.avg_price;
+  document.getElementById('kpiMargin').textContent = data.kpi.avg_margin_pct.toFixed(1) + '%';
+  document.getElementById('kpiLoss').textContent = data.kpi.loss_rate.toFixed(1) + '%';
+  document.getElementById('kpiRevenue').textContent = (data.kpi.total_revenue/10000).toFixed(2);
+  document.getElementById('kpiProfit').textContent = (data.kpi.total_profit/10000).toFixed(2);
+  document.getElementById('kpiLossDelta').textContent = '利润率<10%';
+  // Compute low-margin rate
+  const lowMargin = D.orders_detail.filter(r=>r.毛利率<10).length;
+  document.getElementById('kpiLoss').textContent = (lowMargin/D.orders_detail.length*100).toFixed(1) + '%';
+}
+
+function updateFilterInfo() {
+  const rows = getFilteredData();
+  document.getElementById('filterInfo').textContent = `当前筛选: ${rows.length} 条订单`;
+}
+
+function resetFilters() {
+  document.getElementById('distFilter').value = '全部';
+  document.getElementById('svcFilter').value = '全部';
+  document.getElementById('monthFilter').value = '全部';
+  document.getElementById('seasonFilter').value = '全部';
+  onFilterChange();
+}
+
+document.getElementById('distFilter').addEventListener('change', onFilterChange);
+document.getElementById('svcFilter').addEventListener('change', onFilterChange);
+document.getElementById('monthFilter').addEventListener('change', onFilterChange);
+document.getElementById('seasonFilter').addEventListener('change', onFilterChange);
+
+// ============================================================
+// Chart 1: Influence Factor Heatmap
+// ============================================================
+function renderInfluenceHeatmap(data) {
+  const chart = echarts.init(document.getElementById('chartInfluence'));
+
+  // Build influence matrix: rows=factors, cols=metrics
+  const factors = [
+    {name:'服务类型', score: data.influence_factors.find(f=>f.factor==='服务类型')?.eta_squared||0, sig: data.influence_factors.find(f=>f.factor==='服务类型')?.significant},
+    {name:'城区', score: data.influence_factors.find(f=>f.factor==='城区')?.eta_squared||0, sig: data.influence_factors.find(f=>f.factor==='城区')?.significant},
+    {name:'服务等级', score: data.influence_factors.find(f=>f.factor==='服务等级')?.eta_squared||0, sig: data.influence_factors.find(f=>f.factor==='服务等级')?.significant},
+    {name:'小区档次', score: data.influence_factors.find(f=>f.factor==='小区档次')?.eta_squared||0, sig: data.influence_factors.find(f=>f.factor==='小区档次')?.significant},
+    {name:'旺季等级', score: data.influence_factors.find(f=>f.factor==='旺季等级')?.eta_squared||0, sig: data.influence_factors.find(f=>f.factor==='旺季等级')?.significant},
+    {name:'是否周末', score: Math.abs(data.influence_factors.find(f=>f.factor==='是否周末')?.diff_pct||0)/100, sig: data.influence_factors.find(f=>f.factor==='是否周末')?.significant},
+    {name:'是否三月三', score: Math.abs(data.influence_factors.find(f=>f.factor==='是否三月三')?.diff_pct||0)/100, sig: data.influence_factors.find(f=>f.factor==='是否三月三')?.significant},
+    {name:'是否回南天', score: Math.abs(data.influence_factors.find(f=>f.factor==='是否回南天')?.diff_pct||0)/100, sig: data.influence_factors.find(f=>f.factor==='是否回南天')?.significant},
+    {name:'是否春节', score: Math.abs(data.influence_factors.find(f=>f.factor==='是否春节')?.diff_pct||0)/100, sig: data.influence_factors.find(f=>f.factor==='是否春节')?.significant},
+  ];
+
+  // Spearman correlation with 订单金额
+  const spearmanLabelIdx = data.correlation.labels.indexOf('订单金额');
+  const spearmanVals = data.correlation.labels.map((lbl, i) => ({
+    name: lbl + '(ρ)',
+    value: Math.abs(data.correlation.matrix[spearmanLabelIdx][i]),
+    sig: data.correlation.matrix[spearmanLabelIdx][i] !== 0
+  }));
+
+  const xLabels = ['η²效应量', '显著性'];
+  const heatData = [];
+  factors.forEach((f, i) => {
+    heatData.push([0, i, Math.min(f.score, 1)]);
+    heatData.push([1, i, f.sig ? 1 : 0.1]);
+  });
+
+  const option = {
+    tooltip: {
+      formatter: function(p) {
+        const factor = factors[p.value[1]];
+        if (p.value[0] === 0) return `<b>${factor.name}</b><br/>η²效应量: ${(factor.score*100).toFixed(1)}%<br/>${factor.sig ? '✅ 统计显著 (p<0.05)' : '⚠ 不显著'}`;
+        return `<b>${factor.name}</b><br/>显著性: ${factor.sig ? '✅ 显著' : '⚠ 不显著'}`;
+      }
+    },
+    grid: { left: 120, right: 60, top: 30, bottom: 40 },
+    xAxis: { type: 'category', data: xLabels, axisLabel: {fontSize:12}, splitArea: {show:true} },
+    yAxis: { type: 'category', data: factors.map(f=>f.name), axisLabel: {fontSize:11} },
+    visualMap: {
+      min: 0, max: 1, calculable: true, orient: 'vertical', right: 10, top: 30, bottom: 40,
+      inRange: { color: ['#f0f9ff', '#bae6fd', '#60a5fa', '#2563eb'] },
+      text: ['高', '低'], textStyle: {fontSize:11}
+    },
+    series: [{
+      type: 'heatmap', data: heatData,
+      label: { show: true, fontSize: 11,
+        formatter: function(p) {
+          if (p.value[0] === 0) return (p.value[2]*100).toFixed(0)+'%';
+          return p.value[2] > 0.5 ? '显著' : '不显著';
+        }
+      },
+      emphasis: { itemStyle: { shadowBlur: 10, shadowColor: 'rgba(0,0,0,.3)' } }
+    }]
+  };
+  chart.setOption(option);
+  window.addEventListener('resize', () => chart.resize());
+}
+
+// ============================================================
+// Chart 2: Supply-Demand Heatmap (multi-year)
+// ============================================================
+let currentSDYear = null;
+
+function renderSDHeatmap(data) {
+  const sd = data.supply_demand;
+  const years = Object.keys(sd.heatmaps || {}).sort();
+  if (!years.length) return;
+
+  // Build year selector buttons if not already done
+  const container = document.getElementById('sdYearSelector');
+  if (!currentSDYear) currentSDYear = years[years.length - 1]; // default to latest year
+  container.querySelectorAll('button').forEach(b => b.remove());
+  years.forEach(yr => {
+    const btn = document.createElement('button');
+    btn.textContent = yr + '年';
+    btn.style.cssText = 'padding:4px 14px;border:1px solid #d1d5db;border-radius:6px;font-size:13px;background:#fff;cursor:pointer;margin-right:6px';
+    if (yr === currentSDYear) {
+      btn.style.background = '#2563eb';
+      btn.style.color = '#fff';
+      btn.style.borderColor = '#2563eb';
+    }
+    btn.onclick = () => {
+      currentSDYear = yr;
+      renderSDChart(data);
+    };
+    container.appendChild(btn);
+  });
+
+  renderSDChart(data);
+}
+
+function renderSDChart(data) {
+  const chart = echarts.init(document.getElementById('chartSDHeatmap'));
+  const sd = data.supply_demand;
+  const hmap = sd.heatmaps[currentSDYear];
+  if (!hmap) return;
+
+  const heatData = [];
+  sd.districts.forEach((d, i) => {
+    hmap.months.forEach((m, j) => {
+      heatData.push([j, i, hmap.supply_demand_ratio[i][j] || 0]);
+    });
+  });
+
+  const option = {
+    tooltip: {
+      formatter: function(p) {
+        const dist = sd.districts[p.value[1]];
+        const month = hmap.months[p.value[0]];
+        const ratio = p.value[2];
+        const price = hmap.avg_price[p.value[1]][p.value[0]];
+        const orders = hmap.order_count[p.value[1]][p.value[0]];
+        return `<b>${dist} · ${month}</b><br/>供需比: ${ratio.toFixed(2)}<br/>样本均价: ${price.toFixed(0)} 元<br/>样本订单: ${orders}`;
+      }
+    },
+    grid: { left: 70, right: 50, top: 30, bottom: 40 },
+    xAxis: { type: 'category', data: hmap.months, axisLabel: {fontSize:12, rotate:30} },
+    yAxis: { type: 'category', data: sd.districts, axisLabel: {fontSize:11} },
+    visualMap: {
+      min: 0, max: 5, calculable: true, orient: 'vertical', right: 10, top: 30, bottom: 40,
+      inRange: { color: ['#dcfce7', '#fef08a', '#fbbf24', '#f97316', '#dc2626'] },
+      text: ['高(供不应求)', '低(供过于求)'], textStyle: {fontSize:11}
+    },
+    series: [{
+      type: 'heatmap', data: heatData,
+      label: { show: true, fontSize: 10, formatter: p => p.value[2].toFixed(1) },
+      emphasis: { itemStyle: { shadowBlur: 10, shadowColor: 'rgba(0,0,0,.3)' } }
+    }]
+  };
+  chart.setOption(option);
+  window.addEventListener('resize', () => chart.resize());
+}
+
+// ============================================================
+// Chart 3: Seasonal Trend (with annotations)
+// ============================================================
+function renderSeasonalTrend(data) {
+  const chart = echarts.init(document.getElementById('chartSeasonal'));
+  const monthly = data.seasonal.monthly;
+  const months = monthly.map(m => m['月份']);
+
+  const option = {
+    tooltip: { trigger: 'axis' },
+    legend: { data: ['订单量', '平均客单价', '平均利润率'], top: 5 },
+    grid: { left: 55, right: 60, top: 60, bottom: 50 },
+    xAxis: { type: 'category', data: months, axisLabel: {fontSize:11} },
+    yAxis: [
+      { type: 'value', name: '元 / 订单量', axisLabel: {fontSize:10} },
+      { type: 'value', name: '%', axisLabel: {fontSize:10} }
+    ],
+    series: [
+      {
+        name: '订单量', type: 'bar', data: monthly.map(m=>m['订单量']),
+        itemStyle: { color: 'rgba(37,99,235,.25)' }, barWidth: '40%',
+        label: { show: true, position: 'top', fontSize: 10 }
+      },
+      {
+        name: '平均客单价', type: 'line', yAxisIndex: 0,
+        data: monthly.map(m=>m['平均客单价'].toFixed(0)),
+        lineStyle: { color: '#2563eb', width: 2.5 },
+        itemStyle: { color: '#2563eb' }, symbol: 'circle', symbolSize: 8,
+        label: { show: true, fontSize: 10, formatter: p=>p.value+'元' }
+      },
+      {
+        name: '平均利润率', type: 'line', yAxisIndex: 1,
+        data: monthly.map(m=>m['平均利润率'].toFixed(1)),
+        lineStyle: { color: '#dc2626', width: 2, type: 'dashed' },
+        itemStyle: { color: '#dc2626' }, symbol: 'diamond', symbolSize: 8,
+        label: { show: true, fontSize: 10, formatter: p=>p.value+'%' }
+      }
+    ],
+    markLine: {}, // Placeholder for dynamic markAreas
+  };
+
+  // Add markAreas for annotations (handle both 2025 and 2026)
+  const years = [2025, 2026];
+  const areas = [];
+  years.forEach(yr => {
+    const janIdx = months.findIndex(m => m.startsWith(`${yr}-01`));
+    const marIdx = months.findIndex(m => m.startsWith(`${yr}-03`));
+    const aprIdx = months.findIndex(m => m.startsWith(`${yr}-04`));
+    if (janIdx >= 0) areas.push([{xAxis: months[janIdx], itemStyle:{color:'rgba(251,191,36,.12)'}, label:{show:true,position:'insideTop',formatter:'春节前\n超级旺季',fontSize:10,color:'#92400e'}}, {xAxis: months[janIdx]}]);
+    if (marIdx >= 0 && aprIdx >= 0) areas.push([{xAxis: months[marIdx], itemStyle:{color:'rgba(5,150,105,.1)'}, label:{show:true,position:'insideTop',formatter:'回南天\n(深度清洁旺季)',fontSize:10,color:'#047857'}}, {xAxis: months[aprIdx]}]);
+    if (aprIdx >= 0) areas.push([{name:`${yr}三月三`, xAxis: months[aprIdx]}]);
+  })
+
+  // Use markArea on the bar series
+  option.series[0].markArea = {
+    silent: true,
+    data: areas.filter(a=>a.length===2)
+  };
+
+  chart.setOption(option);
+  window.addEventListener('resize', () => chart.resize());
+}
+
+// ============================================================
+// Chart 4: Loss/Margin Distribution by District
+// ============================================================
+function renderLossDistribution(data) {
+  const chart = echarts.init(document.getElementById('chartLossDist'));
+  const ds = data.district_summary;
+
+  const option = {
+    tooltip: {
+      trigger: 'axis',
+      formatter: function(ps) {
+        const dist = ps[0].name;
+        const d = ds.find(r=>r['城区']===dist);
+        return `<b>${dist}</b><br/>均价: ${d['平均价格'].toFixed(0)} 元<br/>利润率: ${d['平均利润率'].toFixed(1)}%<br/>订单量: ${d['订单量']}<br/>低利润占比: ${d['亏损率'].toFixed(1)}%`;
+      }
+    },
+    legend: { data: ['平均客单价(元)', '平均利润率(%)'], top: 5 },
+    grid: { left: 55, right: 55, top: 50, bottom: 40 },
+    xAxis: { type: 'category', data: ds.map(r=>r['城区']), axisLabel: {fontSize:11} },
+    yAxis: [
+      { type: 'value', name: '元', axisLabel: {fontSize:10} },
+      { type: 'value', name: '%', min: 0, max: 40, axisLabel: {fontSize:10} }
+    ],
+    series: [
+      {
+        name: '平均客单价(元)', type: 'bar',
+        data: ds.map(r=>r['平均价格'].toFixed(0)),
+        itemStyle: { color: '#60a5fa' }, barWidth: '50%',
+        label: { show: true, position: 'top', fontSize: 10, formatter: p=>p.value+'元' }
+      },
+      {
+        name: '平均利润率(%)', type: 'line', yAxisIndex: 1,
+        data: ds.map(r=>r['平均利润率'].toFixed(1)),
+        lineStyle: { color: '#dc2626', width: 2.5 },
+        itemStyle: { color: '#dc2626' }, symbol: 'roundRect', symbolSize: 10,
+        label: { show: true, fontSize: 10, formatter: p=>p.value+'%', distance: 15 }
+      }
+    ]
+  };
+  chart.setOption(option);
+  window.addEventListener('resize', () => chart.resize());
+}
+
+function renderLossDistributionFromRows(rows, agg) {
+  // Re-render with filtered data
+  const chart = echarts.getInstanceByDom(document.getElementById('chartLossDist'));
+  if (!chart) return;
+  const distAgg = {};
+  rows.forEach(r => {
+    if (!distAgg[r.城区]) distAgg[r.城区] = {sum:0, margin:0, n:0, lowN:0};
+    distAgg[r.城区].sum += r.订单金额;
+    distAgg[r.城区].margin += r.毛利率;
+    distAgg[r.城区].n += 1;
+    if (r.毛利率 < 10) distAgg[r.城区].lowN += 1;
+  });
+  const dists = ['青秀','良庆','江南','西乡塘','兴宁','邕宁','武鸣'].filter(d=>distAgg[d]);
+  const option = {
+    xAxis: { data: dists },
+    series: [
+      { name: '平均客单价(元)', data: dists.map(d=>(distAgg[d].sum/distAgg[d].n).toFixed(0)) },
+      { name: '平均利润率(%)', data: dists.map(d=>(distAgg[d].margin/distAgg[d].n).toFixed(1)) }
+    ]
+  };
+  chart.setOption(option);
+}
+
+// ============================================================
+// Chart 5: Service Type x Skill Level
+// ============================================================
+function renderServiceSkill(data) {
+  const chart = echarts.init(document.getElementById('chartServiceSkill'));
+  const sa = data.skill_analysis;
+  const svcs = ['日常保洁','深度清洁','开荒保洁','家电清洗'];
+  const skills = ['新手','熟练','金牌'];
+
+  const option = {
+    tooltip: {
+      trigger: 'axis',
+      formatter: function(ps) {
+        let html = `<b>${ps[0].name}</b>`;
+        ps.forEach(p => {
+          const row = sa.find(r=>r['服务类型']===p.name && r['服务等级']===p.seriesName);
+          if (row) html += `<br/>${p.seriesName}: 均价${row['平均价格'].toFixed(0)}元 利润率${row['平均利润率'].toFixed(1)}% 订单${row['订单量']}`;
+        });
+        return html;
+      }
+    },
+    legend: { data: skills, top: 5 },
+    grid: { left: 55, right: 30, top: 45, bottom: 40 },
+    xAxis: { type: 'category', data: svcs, axisLabel: {fontSize:11} },
+    yAxis: { type: 'value', name: '平均利润率 (%)', axisLabel: {fontSize:10} },
+    series: skills.map((skill, i) => ({
+      name: skill, type: 'bar',
+      data: svcs.map(svc => {
+        const row = sa.find(r=>r['服务类型']===svc && r['服务等级']===skill);
+        return row ? row['平均利润率'].toFixed(1) : null;
+      }),
+      itemStyle: { color: ['#93c5fd','#60a5fa','#2563eb'][i] },
+      barGap: '10%',
+      label: { show: true, position: 'top', fontSize: 10, formatter: p=>p.value?p.value+'%':'' }
+    }))
+  };
+  chart.setOption(option);
+  window.addEventListener('resize', () => chart.resize());
+}
+
+function renderServiceSkillFromRows(rows) {
+  const chart = echarts.getInstanceByDom(document.getElementById('chartServiceSkill'));
+  if (!chart) return;
+  const agg = {};
+  rows.forEach(r => {
+    const k = r.服务类型 + '|' + r.服务等级;
+    if (!agg[k]) agg[k] = {margin:0, n:0};
+    agg[k].margin += r.毛利率;
+    agg[k].n += 1;
+  });
+  const svcs = ['日常保洁','深度清洁','开荒保洁','家电清洗'];
+  const skills = ['新手','熟练','金牌'];
+  const option = {
+    series: skills.map((skill, i) => ({
+      name: skill, data: svcs.map(svc => {
+        const row = agg[svc+'|'+skill];
+        return row ? (row.margin/row.n).toFixed(1) : null;
+      })
+    }))
+  };
+  chart.setOption(option);
+}
+
+// ============================================================
+// Loss Order Detail Table
+// ============================================================
+let currentSortCol = '毛利率';
+let currentSortDir = 'asc';
+
+function renderLossTable(rows) {
+  // Show orders with margin < 15% (or all if filtered small)
+  let displayRows = rows.filter(r => r.毛利率 < 15);
+  if (displayRows.length === 0 && rows.length > 0) {
+    displayRows = rows.filter(r => r.毛利率 < 20);
+  }
+  if (displayRows.length === 0) displayRows = rows.slice(0, 30);
+
+  // Sort
+  if (currentSortCol === '毛利率') {
+    displayRows.sort((a,b) => currentSortDir==='asc' ? a.毛利率 - b.毛利率 : b.毛利率 - a.毛利率);
+  }
+
+  const tbody = document.querySelector('#lossTable tbody');
+  tbody.innerHTML = displayRows.map(r => {
+    const rowClass = r.毛利率 < 0 ? 'row-danger' : (r.毛利率 < 10 ? 'row-warn' : '');
+    const marginBadge = r.毛利率 < 0 ? '<span class="badge badge-red">亏损</span>' :
+                        r.毛利率 < 5 ? '<span class="badge badge-orange">边缘</span>' :
+                        '<span class="badge badge-blue">偏低</span>';
+    return `<tr class="${rowClass}">
+      <td>${r.订单ID || ''}</td><td>${r.城区||''}</td><td>${r.小区||''}</td>
+      <td>${r.服务类型||''}</td><td>${r.服务等级||''}</td>
+      <td>${(r.订单金额||0).toFixed(0)}</td><td>${(r.标准成本||0).toFixed(0)}</td>
+      <td>${(r.毛利润||0).toFixed(0)}</td>
+      <td>${(r.毛利率||0).toFixed(1)}% ${marginBadge}</td>
+      <td>${r.月份标签||''}</td><td>${r.旺季等级||''}</td>
+    </tr>`;
+  }).join('');
+}
+
+function sortTable(col) {
+  if (currentSortCol === col) {
+    currentSortDir = currentSortDir === 'asc' ? 'desc' : 'asc';
+  } else {
+    currentSortCol = col;
+    currentSortDir = 'asc';
+  }
+  // Update header indicators
+  document.querySelectorAll('#lossTable .sortable').forEach(th => {
+    th.classList.remove('asc','desc');
+    if (th.textContent.trim() === col) th.classList.add(currentSortDir);
+  });
+
+  renderLossTable(getFilteredData());
+}
+
+// ============================================================
+// Start
+// ============================================================
+window.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

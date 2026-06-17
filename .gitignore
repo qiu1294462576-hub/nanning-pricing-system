@@ -1,0 +1,31 @@
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.claude/
+venv/
+.env
+
+# Node
+node_modules/
+dist/
+dist-ssr/
+
+# Large generated files
+output/analysis_data.js
+_references/
+
+# Logs
+*.log

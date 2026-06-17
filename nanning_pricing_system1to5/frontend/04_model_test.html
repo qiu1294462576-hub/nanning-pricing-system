@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>AI 动态定价测试 — 南宁家政</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{--primary:#2563eb;--primary-light:#dbeafe;--primary-dark:#1d4ed8;--success:#16a34a;--success-light:#dcfce7;--warning:#f59e0b;--warning-light:#fef3c7;--danger:#dc2626;--danger-light:#fecaca;--gray-50:#f8fafc;--gray-100:#f1f5f9;--gray-200:#e2e8f0;--gray-300:#d1d5db;--gray-400:#94a3b8;--gray-500:#64748b;--gray-700:#334155;--gray-900:#0f172a;--radius:10px;--shadow:0 1px 3px rgba(0,0,0,.08);}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:var(--gray-100);color:var(--gray-900);padding:0;min-height:100vh;}
+.header{background:linear-gradient(135deg,#1a365d 0,var(--primary) 100%);color:#fff;padding:20px 16px 16px;position:sticky;top:0;z-index:10;}
+.header h1{font-size:20px;font-weight:600;}
+.header .sub{font-size:12px;opacity:.8;margin-top:4px;}
+.header .badge{display:inline-block;background:rgba(255,255,255,.15);font-size:11px;padding:3px 10px;border-radius:12px;margin-top:6px;margin-right:6px;}
+.header .badge.green{background:rgba(22,163,74,.2);color:#86efac;}
+.container{max-width:520px;margin:0 auto;padding:12px 12px 80px;}
+.card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;margin-bottom:12px;}
+.card h2{font-size:15px;font-weight:600;color:var(--gray-900);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.card h2 .tag{background:var(--primary-light);color:var(--primary);font-size:10px;padding:2px 8px;border-radius:8px;font-weight:500;}
+
+/* Form */
+.form-row{display:flex;gap:8px;margin-bottom:10px;}
+.form-group{flex:1;min-width:0;}
+.form-group.full{flex:0 0 100%;}
+.form-group label{display:block;font-size:12px;font-weight:500;color:var(--gray-500);margin-bottom:4px;}
+.form-group select,.form-group input{width:100%;padding:10px 12px;border:1px solid var(--gray-300);border-radius:8px;font-size:14px;background:#fff;color:var(--gray-900);}
+.form-group select:focus,.form-group input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,.15);}
+
+/* Mode toggle */
+.mode-toggle{display:flex;gap:6px;margin-bottom:12px;}
+.mode-btn{flex:1;padding:10px;border:2px solid var(--gray-200);border-radius:8px;background:#fff;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;text-align:center;}
+.mode-btn.active{border-color:var(--primary);background:var(--primary-light);color:var(--primary);}
+.mode-btn .icon{display:block;font-size:16px;margin-bottom:2px;}
+
+/* Output */
+.output-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;}
+.output-card{text-align:center;padding:12px 8px;border-radius:8px;}
+.output-card.blue{background:var(--primary-light);}
+.output-card.green{background:var(--success-light);}
+.output-card.red{background:var(--danger-light);}
+.output-card.purple{background:#f3e8ff;}
+.output-card .label{font-size:11px;color:var(--gray-500);margin-bottom:4px;}
+.output-card .value{font-size:20px;font-weight:700;}
+.output-card.blue .value{color:var(--primary);}
+.output-card.green .value{color:var(--success);}
+.output-card.red .value{color:var(--danger);}
+.output-card.purple .value{color:#7c3aed;}
+
+/* Comparison mode */
+.comparison-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.comp-card{padding:12px;border-radius:8px;text-align:center;}
+.comp-card.ai{background:var(--primary-light);}
+.comp-card.rule{background:var(--success-light);}
+.comp-card .label{font-size:11px;color:var(--gray-500);margin-bottom:4px;}
+.comp-card .value{font-size:18px;font-weight:700;}
+.comp-card.ai .value{color:var(--primary);}
+.comp-card.rule .value{color:var(--success);}
+
+/* Factors */
+.factor-list{display:flex;flex-direction:column;gap:4px;}
+.factor-item{display:flex;justify-content:space-between;padding:6px 10px;background:var(--gray-50);border-radius:6px;font-size:13px;}
+.factor-item .name{color:var(--gray-700);}
+.factor-item .impact{font-weight:600;color:var(--primary);}
+.factor-item .impact.positive{color:var(--success);}
+.factor-item .impact.limit{color:var(--warning);}
+
+/* Cost breakdown */
+.cost-list{display:flex;flex-direction:column;gap:6px;}
+.cost-item{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--gray-50);border-radius:6px;font-size:13px;}
+.cost-item .name{color:var(--gray-700);display:flex;align-items:center;gap:6px;}
+.cost-item .amount{font-weight:600;color:var(--gray-900);}
+.cost-item .dot{display:inline-block;width:8px;height:8px;border-radius:50%;}
+
+.chart-box{width:100%;height:220px;}
+
+/* Batch table */
+.batch-table{width:100%;border-collapse:collapse;font-size:12px;}
+.batch-table th{background:var(--primary);color:#fff;padding:6px 4px;text-align:center;font-weight:500;}
+.batch-table td{padding:4px;border-bottom:1px solid var(--gray-200);text-align:center;}
+.batch-table tr:nth-child(even){background:var(--gray-50);}
+
+/* Status */
+.status-bar{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:6px;font-size:13px;margin-bottom:12px;}
+.status-bar.online{background:var(--success-light);color:var(--success);}
+.status-bar.offline{background:var(--danger-light);color:var(--danger);}
+.status-bar .dot{width:8px;height:8px;border-radius:50%;display:inline-block;}
+.status-bar.online .dot{background:var(--success);}
+.status-bar.offline .dot{background:var(--danger);}
+
+.tooltip{font-size:11px;color:var(--gray-400);margin-top:4px;}
+.footer-text{text-align:center;font-size:11px;color:var(--gray-400);padding:20px 0;}
+
+@media(min-width:768px){
+  .container{max-width:640px;padding:16px 16px 80px;}
+  .form-row{gap:12px;}
+  .output-grid{gap:12px;}
+  .output-card .value{font-size:24px;}
+}
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);padding:10px 24px;
+  border-radius:20px;color:#fff;font-size:14px;z-index:9999;opacity:0;transition:opacity 0.3s;
+  pointer-events:none;}
+.toast.show{opacity:1;}
+.toast-error{background:#dc2626;}
+.toast-info{background:#2563eb;}
+.toast-success{background:#16a34a;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>AI 动态定价测试</h1>
+  <div class="sub">南宁家政 · 四层混合定价模型 | 成本兜底+市场锚定+AI调价+规则校验</div>
+  <div>
+    <span class="badge" id="modelBadge">模型: 未加载</span>
+    <span class="badge green">Phase 4</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- API Status -->
+  <div class="status-bar offline" id="apiStatus">
+    <span class="dot"></span>
+    <span>后端状态: <span id="statusText">检查中...</span></span>
+  </div>
+
+  <!-- ===== Input ===== -->
+  <div class="card">
+    <h2><span>📋</span> 服务信息</h2>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>服务类型</label>
+        <select id="serviceType">
+          <option value="日常保洁">日常保洁</option>
+          <option value="深度清洁">深度清洁</option>
+          <option value="开荒保洁">开荒保洁</option>
+          <option value="家电清洗">家电清洗</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>师傅等级</label>
+        <select id="skillLevel">
+          <option value="新手">新手</option>
+          <option value="熟练" selected>熟练</option>
+          <option value="金牌">金牌</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>城区</label>
+        <select id="district">
+          <option value="青秀">青秀</option>
+          <option value="良庆">良庆</option>
+          <option value="江南">江南</option>
+          <option value="西乡塘">西乡塘</option>
+          <option value="兴宁">兴宁</option>
+          <option value="邕宁">邕宁</option>
+          <option value="武鸣">武鸣</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>时间段</label>
+        <select id="timePeriod">
+          <option value="工作日">工作日</option>
+          <option value="周末">周末</option>
+          <option value="节假日">节假日</option>
+          <option value="旺季">旺季</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>服务时长（小时）</label>
+        <input type="number" id="duration" value="3" min="0.5" max="24" step="0.5">
+      </div>
+      <div class="form-group">
+        <label>户型</label>
+        <select id="apartmentType">
+          <option value="1室">1室</option>
+          <option value="2室">2室</option>
+          <option value="3室" selected>3室</option>
+          <option value="4室+">4室+</option>
+          <option value="别墅">别墅</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Mode toggle -->
+    <div class="mode-toggle">
+      <div class="mode-btn active" data-mode="ai" onclick="setMode('ai')">
+        <span class="icon">🤖</span> AI 定价
+      </div>
+      <div class="mode-btn" data-mode="rule" onclick="setMode('rule')">
+        <span class="icon">📐</span> 纯规则
+      </div>
+      <div class="mode-btn" data-mode="compare" onclick="setMode('compare')">
+        <span class="icon">⚖️</span> 对比模式
+      </div>
+    </div>
+
+    <button onclick="getPrice()" style="width:100%;padding:12px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;">🚀 获取定价</button>
+  </div>
+
+  <!-- ===== Output ===== -->
+  <div class="card" id="resultCard" style="display:none;">
+    <h2><span>💰</span> 定价结果</h2>
+
+    <!-- AI/Rule single mode -->
+    <div id="singleMode">
+      <div class="output-grid">
+        <div class="output-card blue">
+          <div class="label">最终定价</div>
+          <div class="value" id="finalPrice">--</div>
+        </div>
+        <div class="output-card green">
+          <div class="label">保本价</div>
+          <div class="value" id="breakEven">--</div>
+        </div>
+        <div class="output-card red">
+          <div class="label">毛利率</div>
+          <div class="value" id="marginPct">--</div>
+        </div>
+      </div>
+
+      <div class="output-grid">
+        <div class="output-card purple">
+          <div class="label">AI 建议价</div>
+          <div class="value" id="aiPrice">--</div>
+        </div>
+        <div class="output-card green">
+          <div class="label">规则定价</div>
+          <div class="value" id="rulePrice">--</div>
+        </div>
+        <div class="output-card blue">
+          <div class="label">安全底价</div>
+          <div class="value" id="floorPrice">--</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Comparison mode -->
+    <div id="compareMode" style="display:none;">
+      <div class="comparison-grid">
+        <div class="comp-card ai">
+          <div class="label">🤖 AI 定价</div>
+          <div class="value" id="compAiPrice">--</div>
+          <div class="tooltip" id="compAiMargin"></div>
+        </div>
+        <div class="comp-card rule">
+          <div class="label">📐 规则定价</div>
+          <div class="value" id="compRulePrice">--</div>
+          <div class="tooltip" id="compRuleMargin"></div>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:8px;">
+        <span style="font-size:13px;font-weight:600;">保本价: <span id="compBreakEven" style="color:var(--danger);">--</span></span>
+      </div>
+    </div>
+
+    <!-- Margin factors -->
+    <h2 style="font-size:14px;margin-top:8px;">加价原因</h2>
+    <div class="factor-list" id="factorList">
+      <div class="factor-item"><span class="name">加载中...</span></div>
+    </div>
+
+    <!-- Cost breakdown -->
+    <h2 style="font-size:14px;margin-top:12px;">成本构成</h2>
+    <div class="cost-list" id="costBreakdown">
+      <div class="cost-item"><span class="name"><span class="dot" style="background:#2563eb"></span>人力成本</span><span class="amount" id="laborCost">--</span></div>
+      <div class="cost-item"><span class="name"><span class="dot" style="background:#16a34a"></span>耗材成本</span><span class="amount" id="materialCost">--</span></div>
+      <div class="cost-item"><span class="name"><span class="dot" style="background:#f59e0b"></span>交通成本</span><span class="amount" id="transportCost">--</span></div>
+      <div class="cost-item"><span class="name"><span class="dot" style="background:#8b5cf6"></span>管理成本</span><span class="amount" id="managementCost">--</span></div>
+      <div class="cost-item"><span class="name"><span class="dot" style="background:#ef4444"></span>风险裕量</span><span class="amount" id="riskBuffer">--</span></div>
+    </div>
+
+    <!-- Pie chart -->
+    <div class="chart-box" id="pieChart"></div>
+  </div>
+
+  <!-- ===== Feature Importance ===== -->
+  <div class="card">
+    <h2><span>📊</span> 特征重要性 <span class="tag">模型解读</span></h2>
+    <div class="chart-box" id="featureChart" style="height:300px;"></div>
+    <div class="tooltip" id="featureCount"></div>
+  </div>
+
+  <!-- ===== Batch Pricing ===== -->
+  <div class="card">
+    <h2><span>📋</span> 批量试算</h2>
+    <p style="font-size:13px;color:var(--gray-500);margin-bottom:10px;">输入多组参数（每行一组），快速对比定价结果</p>
+    <textarea id="batchInput" rows="4" style="width:100%;padding:8px;border:1px solid var(--gray-300);border-radius:6px;font-size:12px;font-family:monospace;">日常保洁,熟练,青秀,3,3室,工作日
+深度清洁,金牌,邕宁,5,别墅,周末
+开荒保洁,新手,武鸣,6,3室,工作日
+家电清洗,熟练,江南,2,3室,工作日</textarea>
+    <div style="display:flex;gap:8px;margin-top:8px;">
+      <button onclick="batchPricing()" style="flex:1;padding:10px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">批量测算</button>
+    </div>
+    <div id="batchResult" style="margin-top:10px;display:none;">
+      <table class="batch-table">
+        <thead><tr><th>服务</th><th>等级</th><th>城区</th><th>AI价</th><th>保本价</th><th>规则价</th><th>模式</th></tr></thead>
+        <tbody id="batchBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer-text" id="footerInfo">加载模型信息...</div>
+</div>
+
+<script>
+// ============================================================
+// State
+// ============================================================
+const API_BASE = "http://localhost:8000";
+let currentMode = "ai";
+let pieChartInstance = null;
+let featureChartInstance = null;
+
+// ============================================================
+// Mode Toggle
+// ============================================================
+function setMode(mode) {
+  currentMode = mode;
+  document.querySelectorAll(".mode-btn").forEach(function(btn) {
+    btn.classList.toggle("active", btn.dataset.mode === mode);
+  });
+  document.getElementById("singleMode").style.display = (mode === "compare") ? "none" : "block";
+  document.getElementById("compareMode").style.display = (mode === "compare") ? "block" : "none";
+}
+
+// ============================================================
+// Toast
+// ============================================================
+function showToast(msg, type) {
+  type = type || "info";
+  var toast = document.createElement("div");
+  toast.className = "toast toast-" + type;
+  toast.textContent = msg;
+  document.body.appendChild(toast);
+  setTimeout(function() { toast.classList.add("show"); }, 10);
+  setTimeout(function() {
+    toast.classList.remove("show");
+    setTimeout(function() { document.body.removeChild(toast); }, 300);
+  }, 3000);
+}
+
+// ============================================================
+// API Calls
+// ============================================================
+async function callApi(endpoint, data) {
+  const resp = await fetch(API_BASE + endpoint, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  if (!resp.ok) {
+    const errText = await resp.text();
+    throw new Error("HTTP " + resp.status + ": " + errText);
+  }
+  return await resp.json();
+}
+
+async function callApiGet(endpoint) {
+  const resp = await fetch(API_BASE + endpoint);
+  if (!resp.ok) throw new Error("HTTP " + resp.status);
+  return await resp.json();
+}
+
+// ============================================================
+// Single Price
+// ============================================================
+async function getPrice() {
+  const st = document.getElementById("serviceType").value;
+  const sl = document.getElementById("skillLevel").value;
+  const dist = document.getElementById("district").value;
+  const dur = parseFloat(document.getElementById("duration").value) || 0;
+  const apt = document.getElementById("apartmentType").value;
+  const tp = document.getElementById("timePeriod").value;
+
+  if (dur <= 0) { showToast("请输入有效的服务时长", "error"); return; }
+
+  const data = {
+    service_type: st, skill_level: sl, district: dist,
+    duration: dur, apartment_type: apt, time_period: tp,
+    mode: currentMode === "compare" ? "ai" : currentMode,
+  };
+
+  try {
+    let aiResult = null;
+    let ruleResult = null;
+
+    if (currentMode === "compare") {
+      // Parallel requests for comparison mode
+      const [aiResp, ruleResp] = await Promise.all([
+        callApi("/api/price", data),
+        callApi("/api/price", { ...data, mode: "rule" })
+      ]);
+      aiResult = aiResp.result;
+      ruleResult = ruleResp.result;
+    } else {
+      const resp = await callApi("/api/price", data);
+      aiResult = resp.result;
+    }
+
+    displayResult(aiResult, ruleResult);
+  } catch (e) {
+    showToast("请求失败: " + e.message, "error");
+  }
+}
+
+function displayResult(result, ruleResult) {
+  document.getElementById("resultCard").style.display = "block";
+
+  if (currentMode !== "compare") {
+    // Single mode
+    document.getElementById("finalPrice").textContent = "¥" + result.final_price.toFixed(0);
+    document.getElementById("breakEven").textContent = "¥" + result.break_even_price.toFixed(0);
+    document.getElementById("marginPct").textContent = result.gross_margin_pct.toFixed(1) + "%";
+    document.getElementById("marginPct").style.color = result.gross_margin_pct >= 25 ? "var(--success)" : "var(--danger)";
+    document.getElementById("aiPrice").textContent = result.ai_price ? "¥" + result.ai_price.toFixed(0) : "--";
+    document.getElementById("rulePrice").textContent = "¥" + result.rule_price.toFixed(0);
+    document.getElementById("floorPrice").textContent = "¥" + result.floor_price.toFixed(0);
+  } else {
+    // Comparison mode
+    document.getElementById("compAiPrice").textContent = "¥" + result.final_price.toFixed(0);
+    document.getElementById("compAiMargin").textContent = "毛利率 " + result.gross_margin_pct.toFixed(1) + "%";
+    document.getElementById("compRulePrice").textContent = ruleResult ? "¥" + ruleResult.final_price.toFixed(0) : "--";
+    document.getElementById("compRuleMargin").textContent = ruleResult ? "毛利率 " + ruleResult.gross_margin_pct.toFixed(1) + "%" : "";
+    document.getElementById("compBreakEven").textContent = "¥" + result.break_even_price.toFixed(0);
+  }
+
+  // Factors
+  const factorList = document.getElementById("factorList");
+  factorList.innerHTML = "";
+  (result.margin_factors || []).forEach(function(f) {
+    const div = document.createElement("div");
+    div.className = "factor-item";
+    div.innerHTML = '<span class="name">' + f.factor + '</span><span class="impact">' + f.impact + '</span>';
+    factorList.appendChild(div);
+  });
+
+  // Cost breakdown
+  const c = result.cost_detail || {};
+  document.getElementById("laborCost").textContent = "¥" + (c.labor_cost || 0).toFixed(1);
+  document.getElementById("materialCost").textContent = "¥" + (c.material_cost || 0).toFixed(1);
+  document.getElementById("transportCost").textContent = "¥" + (c.transport_cost || 0).toFixed(1);
+  document.getElementById("managementCost").textContent = "¥" + (c.management_cost || 0).toFixed(1);
+  document.getElementById("riskBuffer").textContent = "¥" + (c.risk_buffer || 0).toFixed(1);
+
+  // Pie chart
+  renderPieChart(c);
+}
+
+function renderPieChart(cost) {
+  const dom = document.getElementById("pieChart");
+  if (!pieChartInstance) { pieChartInstance = echarts.init(dom); }
+
+  const data = [
+    { name: "人力成本", value: cost.labor_cost || 0 },
+    { name: "耗材成本", value: cost.material_cost || 0 },
+    { name: "交通成本", value: cost.transport_cost || 0 },
+    { name: "管理成本", value: cost.management_cost || 0 },
+    { name: "风险裕量", value: cost.risk_buffer || 0 },
+  ].filter(function(d) { return d.value > 0; });
+
+  pieChartInstance.setOption({
+    tooltip: { trigger: "item", formatter: function(p) { return p.name + ": ¥" + p.value.toFixed(1); } },
+    color: ["#2563eb", "#16a34a", "#f59e0b", "#8b5cf6", "#ef4444"],
+    series: [{
+      type: "pie", radius: ["35%", "65%"],
+      data: data,
+      label: { fontSize: 11, formatter: function(p) { return p.name + "\n" + p.percent + "%"; } },
+    }]
+  }, true);
+}
+
+// ============================================================
+// Batch Pricing
+// ============================================================
+async function batchPricing() {
+  const lines = document.getElementById("batchInput").value.trim().split("\n");
+  const orders = [];
+
+  lines.forEach(function(line) {
+    var trimmed = line.trim();
+    if (!trimmed) return;
+    const parts = trimmed.split(",").map(function(p) { return p.trim(); });
+    if (parts.length < 3) return;
+    const dur = parseFloat(parts[3] || 3);
+    if (isNaN(dur) || dur <= 0) return;
+    orders.push({
+      service_type: parts[0],
+      skill_level: parts[1],
+      district: parts[2],
+      duration: dur,
+      apartment_type: parts[4] || "3室",
+      time_period: parts[5] || "工作日",
+      mode: "ai",
+    });
+  });
+
+  if (orders.length === 0) { showToast("请输入有效的参数", "error"); return; }
+
+  try {
+    const resp = await callApi("/api/batch-price", { orders: orders });
+    const tbody = document.getElementById("batchBody");
+    tbody.innerHTML = "";
+    document.getElementById("batchResult").style.display = "block";
+
+    if (!resp.results) { showToast("服务器返回异常", "error"); return; }
+
+    var html = "";
+    resp.results.forEach(function(r) {
+      if (r.error) {
+        html += "<tr><td colspan='7' style='color:red'>" + r.error + "</td></tr>";
+        return;
+      }
+      const inp = r.input;
+      const res = r.result;
+      html += "<tr>" +
+        "<td>" + inp.service_type + "</td>" +
+        "<td>" + inp.skill_level + "</td>" +
+        "<td>" + inp.district + "</td>" +
+        "<td style='font-weight:600;color:var(--primary)'>¥" + res.final_price.toFixed(0) + "</td>" +
+        "<td>¥" + res.break_even_price.toFixed(0) + "</td>" +
+        "<td>¥" + res.rule_price.toFixed(0) + "</td>" +
+        "<td>" + res.mode_used + "</td>" +
+        "</tr>";
+    });
+    tbody.innerHTML = html;
+  } catch (e) {
+    showToast("批量请求失败: " + e.message, "error");
+  }
+}
+
+// ============================================================
+// Feature Importance
+// ============================================================
+async function loadFeatureImportance() {
+  try {
+    const resp = await callApiGet("/api/model-info");
+    const fi = resp.model_info.feature_importance;
+
+    if (!fi) {
+      document.getElementById("featureCount").textContent = "模型未训练，暂无特征重要性数据";
+      return;
+    }
+
+    const items = Object.entries(fi).sort(function(a, b) { return b[1] - a[1]; });
+    const names = items.map(function(i) { return i[0]; });
+    const values = items.map(function(i) { return i[1]; });
+
+    document.getElementById("featureCount").textContent = "共 " + items.length + " 个特征 | 模型版本: " + (resp.model_info.train_date || "未知");
+
+    const dom = document.getElementById("featureChart");
+    if (!featureChartInstance) { featureChartInstance = echarts.init(dom); }
+
+    featureChartInstance.setOption({
+      tooltip: { trigger: "axis", axisPointer: { type: "shadow" } },
+      grid: { left: "3%", right: "10%", top: "5%", bottom: "3%", containLabel: true },
+      xAxis: { type: "value", name: "重要性 (%)", axisLabel: { fontSize: 10 } },
+      yAxis: { type: "category", data: names.slice(0, 12).reverse(), axisLabel: { fontSize: 10 } },
+      series: [{
+        type: "bar",
+        data: values.slice(0, 12).reverse(),
+        itemStyle: { color: "#2563eb", borderRadius: [0, 4, 4, 0] },
+        barWidth: "70%",
+      }],
+    }, true);
+
+  } catch (e) {
+    document.getElementById("featureCount").textContent = "无法加载特征重要性: " + e.message;
+  }
+}
+
+// ============================================================
+// Health Check & Init
+// ============================================================
+async function checkApi() {
+  const status = document.getElementById("apiStatus");
+  const text = document.getElementById("statusText");
+
+  try {
+    const resp = await callApiGet("/");
+    if (resp.status === "running") {
+      status.className = "status-bar online";
+      text.textContent = "在线 · " + (resp.model_loaded ? "模型已加载" : "模型未训练");
+      document.getElementById("modelBadge").textContent = "模型: " + (resp.model_loaded ? "已加载" : "未训练");
+      loadFeatureImportance();
+    } else {
+      status.className = "status-bar offline";
+      text.textContent = "引擎异常";
+    }
+  } catch (e) {
+    status.className = "status-bar offline";
+    text.textContent = "无法连接后端 (localhost:8000)";
+    document.getElementById("modelBadge").textContent = "模型: 未连接";
+  }
+
+  // Model info
+  try {
+    const info = await callApiGet("/api/model-info");
+    const mi = info.model_info || {};
+    document.getElementById("footerInfo").textContent =
+      "模型版本: " + (mi.train_date || "未训练") +
+      " | 特征数: " + (mi.feature_count || 0) +
+      " | 层: " + (mi.layers || []).join(" + ");
+  } catch (e) {
+    document.getElementById("footerInfo").textContent = "后端未连接，请启动 python -m uvicorn backend.main:app --reload --port 8000";
+  }
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+  loadParams();
+  checkApi();
+  document.querySelectorAll("input, select").forEach(function(el) {
+    el.addEventListener("change", saveParams);
+    el.addEventListener("input", saveParams);
+  });
+  document.getElementById("batchInput").addEventListener("input", saveParams);
+  window.addEventListener("resize", function() {
+    if (pieChartInstance) pieChartInstance.resize();
+    if (featureChartInstance) featureChartInstance.resize();
+  });
+});
+
+// ============================================================
+// localStorage persistence
+// ============================================================
+function saveParams() {
+  var data = {
+    service_type: document.getElementById("serviceType").value,
+    skill_level: document.getElementById("skillLevel").value,
+    district: document.getElementById("district").value,
+    duration: document.getElementById("duration").value,
+    apartment_type: document.getElementById("apartmentType").value,
+    time_period: document.getElementById("timePeriod").value,
+    mode: currentMode,
+    batchInput: document.getElementById("batchInput").value,
+  };
+  try { localStorage.setItem("pricing_test_params", JSON.stringify(data)); } catch(e) {}
+}
+
+function loadParams() {
+  try {
+    var raw = localStorage.getItem("pricing_test_params");
+    if (!raw) return;
+    var data = JSON.parse(raw);
+    if (data.service_type) document.getElementById("serviceType").value = data.service_type;
+    if (data.skill_level) document.getElementById("skillLevel").value = data.skill_level;
+    if (data.district) document.getElementById("district").value = data.district;
+    if (data.duration) document.getElementById("duration").value = data.duration;
+    if (data.apartment_type) document.getElementById("apartmentType").value = data.apartment_type;
+    if (data.time_period) document.getElementById("timePeriod").value = data.time_period;
+    if (data.mode) setMode(data.mode);
+    if (data.batchInput) document.getElementById("batchInput").value = data.batchInput;
+  } catch(e) {}
+}
+</script>
+</body>
+</html>

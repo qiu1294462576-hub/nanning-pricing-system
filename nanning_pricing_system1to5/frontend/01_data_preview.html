@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>南宁家政市场数据预览看板 | 2026年5月</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<script src="data.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:#f0f2f5;color:#333;padding:20px}
+.header{background:linear-gradient(135deg,#1a365d 0,#2563eb 100%);color:#fff;padding:28px 32px;border-radius:12px;margin-bottom:20px}
+.header h1{font-size:24px;font-weight:600;margin-bottom:6px}
+.header .sub{font-size:14px;opacity:.8}
+.header .stats-row{display:flex;gap:24px;margin-top:16px;flex-wrap:wrap}
+.header .stat-item{background:rgba(255,255,255,.15);padding:10px 18px;border-radius:8px;text-align:center;min-width:100px}
+.header .stat-num{font-size:22px;font-weight:700}
+.header .stat-label{font-size:12px;opacity:.8}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.grid .full{grid-column:1/-1}
+.card{background:#fff;border-radius:10px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.card h2{font-size:16px;font-weight:600;color:#1a365d;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.card h2 .tag{background:#2563eb;color:#fff;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:400}
+.chart-box{width:100%;height:360px}
+.filter-bar{display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+.filter-bar select,.filter-bar button{padding:6px 14px;border:1px solid #d1d5db;border-radius:6px;font-size:13px;background:#fff;cursor:pointer}
+.filter-bar button{background:#2563eb;color:#fff;border:none}
+.filter-bar button:hover{background:#1d4ed8}
+.data-table{width:100%;border-collapse:collapse;font-size:13px}
+.data-table th{background:#f8fafc;padding:8px 10px;text-align:left;font-weight:600;border-bottom:2px solid #e2e8f0}
+.data-table td{padding:7px 10px;border-bottom:1px solid #f1f5f9}
+.data-table tr:hover{background:#f8fafc}
+.table-wrap{max-height:400px;overflow-y:auto;border:1px solid #e2e8f0;border-radius:6px}
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:500}
+.badge-green{background:#dcfce7;color:#166534}
+.badge-orange{background:#fed7aa;color:#9a3412}
+.badge-red{background:#fecaca;color:#991b1b}
+.badge-blue{background:#dbeafe;color:#1e40af}
+.footer{text-align:center;padding:20px;color:#94a3b8;font-size:12px}
+@media(max-width:768px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>南宁家政市场数据预览看板</h1>
+  <div class="sub">Nanning Housekeeping Market Data Preview | 数据版本 2026-05-21 | 数据来源: 南宁市融媒体中心/美团/58到家/天鹅到家/壮家女/喜事连连</div>
+  <div class="stats-row" id="statsRow">
+    <div class="stat-item"><div class="stat-num" id="statDistricts">7</div><div class="stat-label">覆盖城区</div></div>
+    <div class="stat-item"><div class="stat-num" id="statServices">4</div><div class="stat-label">服务品类</div></div>
+    <div class="stat-item"><div class="stat-num" id="statSamples">—</div><div class="stat-label">竞品价格样本</div></div>
+    <div class="stat-item"><div class="stat-num" id="statOrders">—</div><div class="stat-label">历史订单</div></div>
+    <div class="stat-item"><div class="stat-num" id="statPlatforms">5</div><div class="stat-label">竞品平台</div></div>
+  </div>
+</div>
+
+<div class="filter-bar">
+  <select id="districtFilter"><option value="all">全部城区</option></select>
+  <select id="serviceFilter"><option value="all">全部服务</option></select>
+  <select id="platformFilter"><option value="all">全部平台</option></select>
+  <button onclick="refreshCharts()">刷新图表</button>
+  <button onclick="exportCSV()">导出CSV</button>
+</div>
+
+<div class="grid">
+  <div class="full card">
+    <h2>各城区价格热力图 <span class="tag">按服务类型</span></h2>
+    <div class="chart-box" id="heatmapChart"></div>
+  </div>
+  <div class="card">
+    <h2>竞品价格对比</h2>
+    <div class="chart-box" id="competitorChart"></div>
+  </div>
+  <div class="card">
+    <h2>淡旺季供需比趋势</h2>
+    <div class="chart-box" id="supplyDemandChart"></div>
+  </div>
+  <div class="card">
+    <h2>区域加价系数</h2>
+    <div class="chart-box" id="premiumChart"></div>
+  </div>
+  <div class="card">
+    <h2>平台分布</h2>
+    <div class="chart-box" id="platformChart"></div>
+  </div>
+  <div class="card">
+    <h2>月度需求指数</h2>
+    <div class="chart-box" id="seasonChart"></div>
+  </div>
+</div>
+
+<div class="card full" style="margin-top:16px">
+  <h2>竞品价格明细 <span class="tag" id="tableCount">前50条</span></h2>
+  <div class="table-wrap" id="tableWrap"></div>
+</div>
+
+<div class="footer">
+  南宁家政智能动态定价系统 | 数据仅供内部参考 | Generated 2026-05-21
+</div>
+
+<script>
+// ============================================================
+// 工具函数
+// ============================================================
+
+/** 取服务大类 */
+function serviceCategory(svc) {
+  return SERVICE_CATEGORY[svc] || svc;
+}
+
+/** 获取筛选后的数据 */
+function getFiltered() {
+  var dist = document.getElementById("districtFilter").value;
+  var svc = document.getElementById("serviceFilter").value;
+  var plat = document.getElementById("platformFilter").value;
+  return COMPETITIVE_PRICES.filter(function(r) {
+    if (dist !== "all" && r.district !== dist) return false;
+    if (svc !== "all" && serviceCategory(r.service) !== svc) return false;
+    if (plat !== "all" && r.platform !== plat) return false;
+    return true;
+  });
+}
+
+/** 从数组中取平均值 */
+function avg(arr) {
+  if (!arr.length) return 0;
+  return arr.reduce(function(a,b){return a+b;},0) / arr.length;
+}
+
+// ============================================================
+// 图表实例
+// ============================================================
+var heatmapChart, competitorChart, supplyDemandChart, premiumChart, platformChart, seasonChart;
+
+// ============================================================
+// 渲染函数
+// ============================================================
+
+function renderHeatmap(data) {
+  var distNames = DISTRICTS.map(function(d){return d.name;});
+  var mapData = [];
+  distNames.forEach(function(d) {
+    SERVICE_NAMES.forEach(function(s) {
+      var items = data.filter(function(r){return r.district===d && serviceCategory(r.service)===s;});
+      var v = items.length ? Math.round(avg(items.map(function(r){return r.totalPrice;}))) : 0;
+      if (v > 0) mapData.push([s, d, v]);
+    });
+  });
+  heatmapChart.setOption({
+    tooltip: {position:"top", formatter:function(p){return p.data[1]+" - "+p.data[0]+": ¥"+p.data[2];}},
+    grid: {left:"20%", bottom:"20%"},
+    xAxis: {type:"category", data:SERVICE_NAMES, axisLabel:{rotate:15}},
+    yAxis: {type:"category", data:distNames, axisLabel:{fontSize:11}},
+    visualMap: {min:50, max:1200, calculable:true, inRange:{color:["#e0f2fe","#3b82f6","#1e40af"]}, textStyle:{fontSize:11}},
+    series: [{type:"heatmap", data:mapData, label:{show:true, color:"#333", fontSize:11}, emphasis:{itemStyle:{shadowBlur:10}}}]
+  }, true);
+}
+
+function renderCompetitor(data) {
+  var distNames = DISTRICTS.map(function(d){return d.name;});
+  var seriesData = SERVICE_NAMES.map(function(svc) {
+    var vals = distNames.map(function(d) {
+      var items = data.filter(function(r){return r.district===d && serviceCategory(r.service)===svc;});
+      return items.length ? Math.round(avg(items.map(function(r){return r.totalPrice;}))) : 0;
+    });
+    return {name:svc, type:"bar", data:vals};
+  });
+  competitorChart.setOption({
+    tooltip: {trigger:"axis"},
+    legend: {data:SERVICE_NAMES, bottom:0, textStyle:{fontSize:11}},
+    grid: {left:60, right:20, bottom:60},
+    xAxis: {type:"category", data:distNames, axisLabel:{fontSize:11}},
+    yAxis: {type:"value", name:"平均总价 (¥)", nameTextStyle:{fontSize:11}},
+    series: seriesData
+  }, true);
+}
+
+function renderSupplyDemand() {
+  // 从 SUPPLY_DEMAND 按年月聚合（跨城区求和）
+  var ymMap = {};
+  SUPPLY_DEMAND.forEach(function(r) {
+    if (!ymMap[r.ym]) ymMap[r.ym] = {demand:0, supply:0, count:0};
+    ymMap[r.ym].demand += r.demand;
+    ymMap[r.ym].supply += r.supply;
+    ymMap[r.ym].count++;
+  });
+  var yms = Object.keys(ymMap).sort();
+  var demandData = yms.map(function(k){return Math.round(ymMap[k].demand);});
+  var supplyData = yms.map(function(k){return Math.round(ymMap[k].supply);});
+  supplyDemandChart.setOption({
+    tooltip: {trigger:"axis"},
+    legend: {data:["预估需求量","预估供给量"], bottom:0, textStyle:{fontSize:11}},
+    grid: {left:55, right:20, bottom:70},
+    xAxis: {type:"category", data:yms, axisLabel:{rotate:45, fontSize:10}},
+    yAxis: {type:"value", name:"全城合计(人次)", nameTextStyle:{fontSize:11}},
+    series: [
+      {name:"预估需求量", type:"line", data:demandData, smooth:true, lineStyle:{width:3}, areaStyle:{opacity:.15}},
+      {name:"预估供给量", type:"line", data:supplyData, smooth:true, lineStyle:{width:3}, areaStyle:{opacity:.15}}
+    ]
+  }, true);
+}
+
+function renderPremium() {
+  var names = DISTRICTS.map(function(d){return d.name;}).reverse();
+  var vals = DISTRICTS.map(function(d){
+    var pct = Math.round((d.premium - 1) * 100);
+    var color = d.premium > 1.1 ? "#ef4444" : d.premium > 1 ? "#f59e0b" : "#22c55e";
+    return {value:pct, itemStyle:{color:color}};
+  }).reverse();
+  premiumChart.setOption({
+    tooltip: {trigger:"item", formatter:function(p){return p.name+": +"+p.value+"%";}},
+    grid: {left:80, right:40},
+    xAxis: {type:"value", name:"加价比例", max:30, axisLabel:{formatter:"{value}%"}},
+    yAxis: {type:"category", data:names, axisLabel:{fontSize:11}},
+    series: [{type:"bar", data:vals, label:{show:true, position:"right", formatter:function(p){return "+"+p.value+"%";}}}]
+  }, true);
+}
+
+function renderPlatform(data) {
+  var pmap = {};
+  data.forEach(function(r){pmap[r.platform] = (pmap[r.platform]||0) + 1;});
+  var pdata = Object.keys(pmap).map(function(k){return {name:k, value:pmap[k]};});
+  platformChart.setOption({
+    tooltip: {trigger:"item", formatter:"{b}: {c}条 ({d}%)"},
+    legend: {bottom:0, textStyle:{fontSize:11}},
+    series: [{type:"pie", radius:["35%","65%"], data:pdata, label:{fontSize:11}, emphasis:{itemStyle:{shadowBlur:10}}}]
+  }, true);
+}
+
+function renderSeason() {
+  // 从 HOLIDAY_DATA 提取月度需求增幅
+  var monthLabels = ["1月","2月","3月","4月","5月","6月","7月","8月","9月","10月","11月","12月"];
+  var monthBoost = [0,0,0,0,0,0,0,0,0,0,0,0];
+  var monthReason = ["","","","","","","","","","","",""];
+  HOLIDAY_DATA.forEach(function(r) {
+    if (r.type === "淡旺季月度") {
+      // date 格式如 "2026-01" 或 "2026-02"
+      var parts = r.date.split("-");
+      if (parts.length === 2) {
+        var m = parseInt(parts[1], 10) - 1;
+        var boostStr = r.demandBoost; // "+300%", "+50%", "+0%", "+150%"
+        var pct = parseInt(boostStr.replace(/[+%]/g,""), 10);
+        monthBoost[m] = pct / 100;
+        monthReason[m] = r.name;
+      }
+    }
+  });
+  // 颜色逻辑：>=3 深红, >=1.5 橙, >0 蓝, 0 灰
+  var colors = monthBoost.map(function(v) {
+    return v >= 3 ? "#ef4444" : v >= 1.5 ? "#f59e0b" : v > 0 ? "#3b82f6" : "#94a3b8";
+  });
+  seasonChart.setOption({
+    tooltip: {trigger:"axis", formatter:function(p){
+      var idx = p[0].dataIndex;
+      return p[0].name + "<br/>需求增幅: +" + (monthBoost[idx]*100) + "%<br/>原因: " + monthReason[idx];
+    }},
+    grid: {left:50, right:20, bottom:40},
+    xAxis: {type:"category", data:monthLabels, axisLabel:{fontSize:11}},
+    yAxis: {type:"value", name:"需求增幅", min:0, max:4, nameTextStyle:{fontSize:11},
+      axisLabel:{formatter:function(v){return "+"+(v*100)+"%";}}},
+    series: [{
+      type:"bar",
+      data: monthBoost.map(function(v,i){return {value:v, itemStyle:{color:colors[i]}};}),
+      label:{show:true, position:"top", formatter:function(p){return "+"+(p.value*100)+"%";}, fontSize:11},
+      markLine:{data:[{yAxis:0, label:{formatter:"基准线", fontSize:10}}]}
+    }]
+  }, true);
+}
+
+function renderTable(data) {
+  var limit = Math.min(50, data.length);
+  var html = "<table class='data-table'><thead><tr>" +
+    "<th>日期</th><th>平台</th><th>城区</th><th>服务</th><th>等级</th>" +
+    "<th>计价方式</th><th>总价</th><th>促销价</th></tr></thead><tbody>";
+  for (var i = 0; i < limit; i++) {
+    var r = data[i];
+    html += "<tr><td>"+r.date+"</td><td>"+r.platform+"</td><td>"+r.district+"</td>" +
+      "<td>"+r.service+"</td><td>"+r.level+"</td><td>"+r.unit+"</td>" +
+      "<td>¥"+r.totalPrice+"</td><td>"+(r.promoPrice?"¥"+r.promoPrice:"-")+"</td></tr>";
+  }
+  html += "</tbody></table>";
+  document.getElementById("tableWrap").innerHTML = html;
+  document.getElementById("tableCount").textContent = "前" + limit + "条/共" + COMPETITIVE_PRICES.length + "条";
+}
+
+function refreshCharts() {
+  var data = getFiltered();
+  renderHeatmap(data);
+  renderCompetitor(data);
+  renderTable(data);
+  renderPlatform(data);
+}
+
+function exportCSV() {
+  var headers = "日期,平台,城区,小区,服务类型,服务等级,计价方式,单价(元),总价(元),促销价(元),淡旺季\n";
+  var rows = COMPETITIVE_PRICES.map(function(r){
+    return r.date+","+r.platform+","+r.district+","+r.community+","+r.service+","+r.level+","+r.unit+","+r.unitPrice+","+r.totalPrice+","+(r.promoPrice||"")+","+r.season;
+  }).join("\n");
+  var blob = new Blob(["﻿"+headers+rows], {type:"text/csv;charset=utf-8"});
+  var a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "nanning_competitive_prices.csv";
+  a.click();
+}
+
+// 初始化筛选器
+function initFilters() {
+  var ds = document.getElementById("districtFilter");
+  DISTRICTS.forEach(function(d){
+    var o = document.createElement("option"); o.value = d.name; o.text = d.name;
+    ds.appendChild(o);
+  });
+  var ss = document.getElementById("serviceFilter");
+  SERVICE_NAMES.forEach(function(s){
+    var o = document.createElement("option"); o.value = s; o.text = s;
+    ss.appendChild(o);
+  });
+  var ps = document.getElementById("platformFilter");
+  PLATFORMS.forEach(function(p){
+    var o = document.createElement("option"); o.value = p; o.text = p;
+    ps.appendChild(o);
+  });
+}
+
+// ============================================================
+// 初始化
+// ============================================================
+window.addEventListener("load", function() {
+  heatmapChart = echarts.init(document.getElementById("heatmapChart"));
+  competitorChart = echarts.init(document.getElementById("competitorChart"));
+  supplyDemandChart = echarts.init(document.getElementById("supplyDemandChart"));
+  premiumChart = echarts.init(document.getElementById("premiumChart"));
+  platformChart = echarts.init(document.getElementById("platformChart"));
+  seasonChart = echarts.init(document.getElementById("seasonChart"));
+
+  // 更新统计数字
+  document.getElementById("statSamples").textContent = COMPETITIVE_PRICES.length;
+  document.getElementById("statOrders").textContent = SAMPLE_ORDERS.length;
+
+  initFilters();
+  refreshCharts();
+  renderSupplyDemand();
+  renderPremium();
+  renderSeason();
+
+  window.addEventListener("resize", function() {
+    [heatmapChart, competitorChart, supplyDemandChart, premiumChart, platformChart, seasonChart].forEach(function(c){c.resize();});
+  });
+});
+</script>
+</body>
+</html>

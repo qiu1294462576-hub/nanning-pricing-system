@@ -1,0 +1,246 @@
+/* 南宁家政智能定价系统 — 全局样式 */
+
+page {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: #f1f5f9;
+  color: #0f172a;
+  font-size: 28rpx;
+}
+
+/* Card */
+.card {
+  background: #fff;
+  border-radius: 16rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0,0,0,.06);
+  padding: 24rpx;
+  margin: 16rpx;
+}
+
+.card-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  margin-bottom: 20rpx;
+  display: flex;
+  align-items: center;
+}
+
+/* Form */
+.form-row {
+  display: flex;
+  gap: 12rpx;
+  margin-bottom: 16rpx;
+}
+
+.form-group {
+  flex: 1;
+}
+
+.form-label {
+  font-size: 24rpx;
+  color: #64748b;
+  margin-bottom: 8rpx;
+}
+
+.form-picker, .form-input {
+  width: 100%;
+  padding: 18rpx 20rpx;
+  border: 1px solid #d1d5db;
+  border-radius: 12rpx;
+  font-size: 28rpx;
+  background: #fff;
+}
+
+/* Buttons */
+.btn {
+  padding: 20rpx 32rpx;
+  border: none;
+  border-radius: 12rpx;
+  font-size: 28rpx;
+  font-weight: 600;
+  text-align: center;
+}
+
+.btn-primary {
+  background: #2563eb;
+  color: #fff;
+}
+
+.btn-block {
+  display: block;
+  width: 100%;
+}
+
+.btn-sm {
+  padding: 12rpx 24rpx;
+  font-size: 24rpx;
+}
+
+.btn-outline {
+  background: #fff;
+  color: #2563eb;
+  border: 1px solid #2563eb;
+}
+
+/* KPI Grid */
+.kpi-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+
+.kpi-item {
+  flex: 0 0 calc(33.33% - 8rpx);
+  text-align: center;
+  padding: 20rpx 8rpx;
+  border-radius: 12rpx;
+  background: #fff;
+  box-shadow: 0 2rpx 8rpx rgba(0,0,0,.05);
+}
+
+.kpi-item.blue { border-bottom: 4rpx solid #2563eb; }
+.kpi-item.green { border-bottom: 4rpx solid #16a34a; }
+.kpi-item.red { border-bottom: 4rpx solid #dc2626; }
+.kpi-item.purple { border-bottom: 4rpx solid #7c3aed; }
+
+.kpi-label {
+  font-size: 22rpx;
+  color: #64748b;
+  margin-bottom: 8rpx;
+}
+
+.kpi-value {
+  font-size: 36rpx;
+  font-weight: 700;
+}
+
+.kpi-item.blue .kpi-value { color: #2563eb; }
+.kpi-item.green .kpi-value { color: #16a34a; }
+.kpi-item.red .kpi-value { color: #dc2626; }
+.kpi-item.purple .kpi-value { color: #7c3aed; }
+
+/* Cost list */
+.cost-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14rpx 20rpx;
+  background: #f8fafc;
+  border-radius: 10rpx;
+  margin-bottom: 10rpx;
+}
+
+.cost-dot {
+  display: inline-block;
+  width: 14rpx;
+  height: 14rpx;
+  border-radius: 50%;
+  margin-right: 12rpx;
+}
+
+/* Factor list */
+.factor-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 12rpx 16rpx;
+  background: #f8fafc;
+  border-radius: 10rpx;
+  margin-bottom: 8rpx;
+}
+
+/* Table */
+.table-wrap {
+  overflow-x: scroll;
+}
+
+.table-header {
+  display: flex;
+  background: #2563eb;
+  color: #fff;
+  padding: 12rpx 4rpx;
+  font-size: 22rpx;
+  font-weight: 500;
+}
+
+.table-row {
+  display: flex;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 10rpx 4rpx;
+  font-size: 22rpx;
+}
+
+.table-row:nth-child(even) { background: #f8fafc; }
+.table-row.danger { background: #fecaca; }
+
+.table-cell {
+  flex: 1;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Chart */
+.chart-wrap {
+  width: 100%;
+  height: 400rpx;
+}
+
+/* Mode toggle */
+.mode-row {
+  display: flex;
+  gap: 8rpx;
+  margin-bottom: 20rpx;
+}
+
+.mode-item {
+  flex: 1;
+  padding: 16rpx 8rpx;
+  border: 2px solid #e2e8f0;
+  border-radius: 12rpx;
+  text-align: center;
+  font-size: 24rpx;
+  font-weight: 600;
+}
+
+.mode-item.active {
+  border-color: #2563eb;
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+/* Collapse */
+.collapse-header {
+  display: flex;
+  justify-content: space-between;
+  padding: 20rpx;
+  background: #f8fafc;
+  border-radius: 12rpx;
+  font-weight: 600;
+  margin-bottom: 8rpx;
+}
+
+.collapse-body {
+  padding: 16rpx 0;
+}
+
+/* Loading */
+.loading {
+  text-align: center;
+  padding: 80rpx 0;
+  color: #94a3b8;
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16rpx;
+  padding: 20rpx 0;
+}
+
+/* Text */
+.text-muted { color: #64748b; font-size: 24rpx; }
+.text-center { text-align: center; }
+.mt-16 { margin-top: 16rpx; }
+.mb-16 { margin-bottom: 16rpx; }

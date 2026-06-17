@@ -1,0 +1,48 @@
+<!-- 南宁家政定价系统 — 订单复盘页 -->
+<view class="card">
+  <view class="card-title">订单复盘</view>
+
+  <view class="form-row">
+    <view class="form-group">
+      <picker mode="selector" range="{{districtOptions}}" bindchange="onFilterChange" data-key="district">
+        <view class="form-picker">{{districtOptions[filterIdx.district]}}</view>
+      </picker>
+    </view>
+    <view class="form-group">
+      <picker mode="selector" range="{{serviceOptions}}" bindchange="onFilterChange" data-key="service">
+        <view class="form-picker">{{serviceOptions[filterIdx.service]}}</view>
+      </picker>
+    </view>
+  </view>
+
+  <button class="btn btn-outline btn-sm" bindtap="toggleLossOnly">{{lossOnly ? '查看全部' : '仅看亏损'}}</button>
+  <button class="btn btn-primary btn-block mt-16" bindtap="loadData" loading="{{loading}}">查询</button>
+</view>
+
+<view class="card" wx:if="{{summary}}">
+  <view class="kpi-grid">
+    <view class="kpi-item blue"><view class="kpi-label">订单总数</view><view class="kpi-value">{{summary.total_orders}}</view></view>
+    <view class="kpi-item red"><view class="kpi-label">亏损订单</view><view class="kpi-value">{{summary.loss_count}}</view></view>
+    <view class="kpi-item red"><view class="kpi-label">亏损率</view><view class="kpi-value">{{summary.loss_rate}}%</view></view>
+  </view>
+
+  <view class="card-title">订单列表</view>
+  <view class="table-header">
+    <text class="table-cell" style="flex:2">城区</text>
+    <text class="table-cell" style="flex:2">服务</text>
+    <text class="table-cell">金额</text>
+    <text class="table-cell">利润</text>
+  </view>
+  <view class="{{item.rowClass}}" wx:for="{{orders}}" wx:key="id">
+    <text class="table-cell" style="flex:2">{{item.district}}</text>
+    <text class="table-cell" style="flex:2">{{item.serviceType}}</text>
+    <text class="table-cell">{{item.amount}}</text>
+    <text class="table-cell" style="color:{{item.profitColor}}">{{item.profitRate}}</text>
+  </view>
+
+  <view class="pagination">
+    <button class="btn btn-sm btn-outline" bindtap="prevPage" disabled="{{page <= 1}}">上一页</button>
+    <text>第 {{page}} / {{totalPages}} 页</text>
+    <button class="btn btn-sm btn-outline" bindtap="nextPage" disabled="{{page >= totalPages}}">下一页</button>
+  </view>
+</view>

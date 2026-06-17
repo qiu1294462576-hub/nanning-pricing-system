@@ -1,0 +1,14 @@
+{
+  "Note": "数据基于南宁家政市场公开信息生成，覆盖2025-01至2026-05",
+  "Sources": "南宁市融媒体中心、南宁晚报、美团家政、58到家、天鹅到家、京东家政、国务院办公厅、广西壮族自治区政府",
+  "GenerationDate": "2026-05-22",
+  "DataRanges": {
+    "sample_orders": "12732 orders, 2025-01 to 2026-05",
+    "supply_demand": "119 records, 7 districts x 17 months",
+    "competitive_prices": "600 records from 3 platforms",
+    "area_economic": "73 communities across 7 districts",
+    "holiday_season": "17 holidays and events",
+    "cost_benchmark": "96 pricing benchmarks"
+  },
+  "Disclaimer": "交易级数据为基于市场调研的高置信度模拟，宏观参考数据来自公开信息"
+}
